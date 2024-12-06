@@ -67,28 +67,16 @@ function parseGroupBy(groupBy) {
     // Case 3: `groupBy` is an object
     if (typeof groupBy === "object") {
         let group = '';
-        for (const table in groupBy) {
-            if (groupBy.hasOwnProperty(table)) {
-                const val = groupBy[table];
-                if (table === "extra") {
-                    // Handle `extra` field
-                    group += (group ? ", " : "") + (Array.isArray(val) ? val.join(", ") : val);
-                }
-                else if (Array.isArray(val)) {
-                    // Handle table-specific columns
-                    group += (group ? ", " : "") + val.map(c => `${table}.${c}`).join(", ");
-                }
+        // Handle table-specific arrays
+        Object.entries(groupBy).forEach(([table, columns]) => {
+            if (table === "extra") {
+                return group += (group ? ", " : "") + (Array.isArray(columns) ? columns.join(", ") : columns);
             }
-        }
-        // // Handle table-specific arrays
-        // Object.entries(groupBy).forEach(([table, columns]) => {
-        //     if (table === "extra") {
-        //         return group += (group ? ", " : "") + (Array.isArray(columns) ? columns.join(", ") : columns);
-        //     }; // Skip `extra` field
-        //     if (Array.isArray(columns)) {
-        //         return group += (group ? ", " : "") + columns.map(column => `${table}.${column}`).join(", ");
-        //     }
-        // });
+            ; // Skip `extra` field
+            if (Array.isArray(columns)) {
+                return group += (group ? ", " : "") + columns.map(column => `${table}.${column}`).join(", ");
+            }
+        });
         return group ? ` GROUP BY ${group}` : '';
     }
     return '';
@@ -108,10 +96,10 @@ function parseJoins(joins) {
         return '';
     let relation = '';
     joins?.forEach((join) => {
-        const { type, on, operator = '=', ...tables } = join;
-        const tableEntries = Object?.entries(tables || {}).filter(([key]) => key !== "type" && key !== "on" && key !== "operator");
-        if (type) {
+        if ('type' in join) {
             // Case 1: Join with `type`, `on`, and `operator`
+            const { type, on, operator = '=', ...tables } = join;
+            const tableEntries = Object?.entries(tables || {}).filter(([key]) => key !== "type" && key !== "on" && key !== "operator");
             if (on && tableEntries?.length) {
                 const table = join?.table;
                 // If `on` is explicitly provided, use it directly
@@ -126,6 +114,7 @@ function parseJoins(joins) {
         }
         else {
             // Case 2: Shorthand form (logging details as requested)
+            const tableEntries = Object.entries(join).filter(([key]) => key !== "type" && key !== "on" && key !== "operator");
             if ('on' in join && tableEntries?.length) {
                 const { on, operator = '=', ...tables } = join;
                 return relation += ` JOIN ${join?.table || tableEntries?.[0]?.[0]} ON ${on}`;
@@ -155,32 +144,18 @@ function parseColumns(columns) {
     }
     // Case 3: `` is an object
     if (typeof columns === "object") {
-        let selectColumn = '';
-        for (const table in columns) {
-            if (columns.hasOwnProperty(table)) {
-                const col = columns[table];
-                if (table === "extra") {
-                    // Handle `extra` field
-                    selectColumn += (selectColumn ? ", " : "") + (Array.isArray(col) ? col.join(", ") : col);
-                }
-                else if (Array.isArray(col)) {
-                    // Handle table-specific columns
-                    selectColumn += (selectColumn ? ", " : "") + col.map(c => `${table}.${c}`).join(", ");
-                }
+        let column = '';
+        // Handle table-specific arrays
+        Object.entries(columns).forEach(([table, columns]) => {
+            if (table === "extra") {
+                return column += (column ? ", " : "") + (Array.isArray(columns) ? columns.join(", ") : columns);
             }
-        }
-        return selectColumn;
-        // console.log(selectColumn)
-        // let column = ''
-        // // Handle table-specific arrays
-        // Object.entries(columns).forEach(([table, columns]) => {
-        //     if (table === "extra") {
-        //         return column += (column ? ", " : "") + (Array.isArray(columns) ? columns.join(", ") : columns);
-        //     }; // Skip `extra` field
-        //     if (Array.isArray(columns)) {
-        //         return column += (column ? ", " : "") + columns.map(column => `${table}.${column}`).join(", ");
-        //     }
-        // });
+            ; // Skip `extra` field
+            if (Array.isArray(columns)) {
+                return column += (column ? ", " : "") + columns.map(column => `${table}.${column}`).join(", ");
+            }
+        });
+        return column ? column : "";
     }
     return '';
 }

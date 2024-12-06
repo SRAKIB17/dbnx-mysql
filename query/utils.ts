@@ -1,13 +1,8 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.parseSort = parseSort;
-exports.parseGroupBy = parseGroupBy;
-exports.isTableInJoin = isTableInJoin;
-exports.parseJoins = parseJoins;
-exports.parseColumns = parseColumns;
-function parseSort(sort) {
-    if (!sort)
-        return '';
+import { FindAllParamsType } from "./find";
+import { JoinsType, SortType } from "./types";
+
+export function parseSort<Tables extends string[]>(sort: SortType<Tables>): string {
+    if (!sort) return '';
     // Handle the case where sort is a simple string
     if (typeof sort === "string") {
         return ` ORDER BY ${sort}`;
@@ -16,16 +11,16 @@ function parseSort(sort) {
     if (typeof sort === "object") {
         let query = '';
         for (const table in sort) {
-            if (!sort.hasOwnProperty(table))
-                continue;
-            const columns = sort[table];
+            if (!sort.hasOwnProperty(table)) continue;
+
+            const columns = (sort as any)[table];
+
             if (typeof columns === 'number') {
                 query += `${query ? ', ' : ''}${table} ${columns === 1 ? "ASC" : "DESC"}`;
             }
             else if (typeof columns === "object") {
                 for (const column in columns) {
-                    if (!columns.hasOwnProperty(column))
-                        continue;
+                    if (!columns.hasOwnProperty(column)) continue;
                     const direction = columns[column];
                     query += `${query ? ', ' : ''}${table}.${column} ${direction === 1 ? "ASC" : "DESC"}`;
                 }
@@ -35,8 +30,10 @@ function parseSort(sort) {
             return ` ORDER BY ${query}`;
         }
     }
+
     // if (typeof sort === "object") {
     //     const entries = Object.entries(sort);
+
     //     if (entries.length) {
     //         const query = entries.map(r => {
     //             const [table, columns] = r;
@@ -53,23 +50,29 @@ function parseSort(sort) {
     // }
     return '';
 }
-function parseGroupBy(groupBy) {
-    if (!groupBy)
-        return '';
+
+export function parseGroupBy<Tables extends string[]>(
+    groupBy: FindAllParamsType<Tables>["groupBy"]
+): string {
+    if (!groupBy) return '';
     // Case 1: `groupBy` is a simple string
     if (typeof groupBy === "string") {
         return ` GROUP BY ${groupBy}`;
     }
+
     // Case 2: `groupBy` is an array of strings
     if (Array.isArray(groupBy)) {
         return ` GROUP BY ${groupBy.join(", ")}`;
     }
+
     // Case 3: `groupBy` is an object
     if (typeof groupBy === "object") {
         let group = '';
+
         for (const table in groupBy) {
             if (groupBy.hasOwnProperty(table)) {
-                const val = groupBy[table];
+                const val = (groupBy as any)[table];
+
                 if (table === "extra") {
                     // Handle `extra` field
                     group += (group ? ", " : "") + (Array.isArray(val) ? val.join(", ") : val);
@@ -89,11 +92,15 @@ function parseGroupBy(groupBy) {
         //         return group += (group ? ", " : "") + columns.map(column => `${table}.${column}`).join(", ");
         //     }
         // });
+
         return group ? ` GROUP BY ${group}` : '';
     }
+
     return '';
 }
-function isTableInJoin(sql, tableName) {
+
+
+export function isTableInJoin(sql: string, tableName: string): boolean {
     // Normalize the SQL string by reducing multiple spaces and converting to lowercase
     sql = sql.replace(/(--[^\n]*|\/\*[\s\S]*?\*\/)/g, '').toLowerCase().trim();
     // Convert the tableName to lowercase for case-insensitive comparison
@@ -103,33 +110,43 @@ function isTableInJoin(sql, tableName) {
     // Check if the table is found in a JOIN clause
     return joinRegex.test(sql);
 }
-function parseJoins(joins) {
-    if (!joins || joins.length === 0)
-        return '';
+
+export function parseJoins<Tables extends string[]>(
+    joins: JoinsType<Tables>
+): string {
+    if (!joins || joins.length === 0) return '';
     let relation = '';
-    joins?.forEach((join) => {
+    joins?.forEach((join: any) => {
         const { type, on, operator = '=', ...tables } = join;
+
         const tableEntries = Object?.entries(tables || {}).filter(([key]) => key !== "type" && key !== "on" && key !== "operator");
+
         if (type) {
             // Case 1: Join with `type`, `on`, and `operator`
+
             if (on && tableEntries?.length) {
                 const table = join?.table;
                 // If `on` is explicitly provided, use it directly
                 return relation += ` ${type} ${table || tableEntries?.[0]?.[0]} ON ${on}`;
             }
+
             if (tableEntries.length !== 2) {
                 throw new Error(`❌JOIN requires exactly two tables for a relation, but found ${tableEntries.length} or condition not found`);
             }
+
             const [[table1, column1], [table2, column2]] = tableEntries;
             let primary = isTableInJoin(relation, table1) ? table2 : table1;
             return relation += ` ${type} ${primary} ON ${table2}.${column2} ${operator} ${table1}.${column1}`;
         }
         else {
             // Case 2: Shorthand form (logging details as requested)
+
             if ('on' in join && tableEntries?.length) {
                 const { on, operator = '=', ...tables } = join;
                 return relation += ` JOIN ${join?.table || tableEntries?.[0]?.[0]} ON ${on}`;
             }
+
+
             // If there are not exactly 2 table-column pairs, raise an error
             if (tableEntries.length !== 2) {
                 throw new Error(`❌ JOIN shorthand requires exactly two tables, but found ${tableEntries.length} or condition not found`);
@@ -142,23 +159,30 @@ function parseJoins(joins) {
     });
     return relation;
 }
-function parseColumns(columns) {
-    if (!columns)
-        return '';
+
+export function parseColumns<Tables extends string[]>(
+    columns: FindAllParamsType<Tables>["groupBy"]
+): string {
+    if (!columns) return '';
+
     // Case 1: `` is a simple string
     if (typeof columns === "string") {
         return columns;
     }
+
     // Case 2: `` is an array of strings
     if (Array.isArray(columns)) {
         return columns.join(", ");
     }
+
+
     // Case 3: `` is an object
     if (typeof columns === "object") {
         let selectColumn = '';
         for (const table in columns) {
             if (columns.hasOwnProperty(table)) {
-                const col = columns[table];
+                const col = (columns as any)[table];
+
                 if (table === "extra") {
                     // Handle `extra` field
                     selectColumn += (selectColumn ? ", " : "") + (Array.isArray(col) ? col.join(", ") : col);
@@ -169,8 +193,9 @@ function parseColumns(columns) {
                 }
             }
         }
-        return selectColumn;
+        return selectColumn
         // console.log(selectColumn)
+
         // let column = ''
         // // Handle table-specific arrays
         // Object.entries(columns).forEach(([table, columns]) => {
@@ -181,6 +206,7 @@ function parseColumns(columns) {
         //         return column += (column ? ", " : "") + columns.map(column => `${table}.${column}`).join(", ");
         //     }
         // });
+
     }
     return '';
 }

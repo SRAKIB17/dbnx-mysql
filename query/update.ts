@@ -1,76 +1,125 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.update = update;
-const utils_1 = require("./utils");
-function update(table, { joins = [], values, where = '', defaultValues = [], limit, sort, fromSubQuery, setCalculations }) {
+import { JoinsType } from "./types";
+import { parseJoins, parseSort } from "./utils";
+
+export type UpdateParamsType<Tables extends string[]> = {
+    values?: {
+        [key: string]: string | number | null | {
+            case: {
+                when: string;  // The condition in the WHEN clause
+                then: any;     // The value to set in the THEN clause
+            }[];   // The CASE structure with an array of WHEN/THEN conditions
+            default: any;       // The default value for the column when no conditions match
+        };
+    },
+    sort?: { [P in Tables[number]]?: Record<string, 1 | -1> } | Record<string, 1 | -1> | string,
+    where: string,
+    defaultValues?: string[],
+    limit?: string | number,
+    joins?: JoinsType<Tables>,
+    fromSubQuery?: Record<string, string>,
+    setCalculations?: {    // For SET calculation
+        [key: string]: string;
+    }
+}
+
+export function update<Tables extends string[]>(table: string, {
+    joins = [],
+    values,
+    where = '',
+    defaultValues = [],
+    limit,
+    sort,
+    fromSubQuery,
+    setCalculations
+}: UpdateParamsType<Tables>) {
+
     if (!table) {
         throw new Error("⚠️ The `table` parameter is required.");
     }
     if (!where) {
         throw new Error("⚠️ The `where` parameter is required.");
     }
+
     if (!values && !defaultValues.length && !setCalculations && !fromSubQuery) {
         throw new Error("⚠️ No update data provided.");
     }
+
     // Handling the update data and CASE statements
     let updateInfo = '';
     for (const column in values) {
-        if (!values.hasOwnProperty(column))
-            continue;
+        if (!values.hasOwnProperty(column)) continue;
+
         const value = values[column];
         if (typeof value === 'object' && value?.hasOwnProperty('case')) {
             const caseStatement = value?.case?.map((caseCondition) => {
                 const { when, then } = caseCondition;
                 return `WHEN ${when} THEN ${JSON.stringify(then)}`;
             }).join(' ');
+
             updateInfo += `${updateInfo ? ', ' : ''}${column} = CASE ${caseStatement} ELSE ${JSON.stringify(value?.default)} END`;
-        }
-        else {
+        } else {
             const isString = typeof value === 'string';
             const isNull = value == null;
+
             const updateValue = isString ?
                 JSON.stringify(value?.trim()) :
                 isNull ? "NULL" : value;
+
             updateInfo += `${updateInfo ? ', ' : ''}${column} = ${updateValue}`;
         }
     }
+
     const calculations = setCalculations || {};
     const subQueries = fromSubQuery || {};
+
     // Handling SET calculations (e.g., column = column + 10)
     for (const column in calculations) {
-        if (!calculations.hasOwnProperty(column))
-            continue;
+        if (!calculations.hasOwnProperty(column)) continue;
+
         const calculation = calculations[column];
         updateInfo += `${updateInfo ? ', ' : ''}${column} = ${calculation}`;
     }
+
     // Handling SET with subQuery
+
     for (const column in subQueries) {
-        if (!subQueries.hasOwnProperty(column))
-            continue;
+        if (!subQueries.hasOwnProperty(column)) continue;
+
         const calculation = subQueries[column];
         updateInfo += `${updateInfo ? ', ' : ''}${column} = ${calculation}`;
     }
+
+
+
     // Handling default value assignments
     if (defaultValues?.length) {
         for (const column of defaultValues) {
             updateInfo += `${updateInfo ? ', ' : ''}${column} = DEFAULT`;
         }
     }
+
+
+
     // Building the JOIN statements if present
-    const joinStatements = (0, utils_1.parseJoins)(joins);
+    const joinStatements = parseJoins(joins);
+
     // Constructing the query
     let query = `UPDATE${joinStatements} ${table} SET ${updateInfo}`;
+
     // Adding WHERE condition if present
     if (where) {
         query += ` WHERE ${where}`;
     }
+
     // Add sorting if provided
     if (sort) {
-        query += (0, utils_1.parseSort)(sort);
+        query += parseSort(sort);
     }
+
     // Adding LIMIT
     if (limit) {
         query += ` LIMIT ${limit}`;
     }
+
     return `${query};`;
 }

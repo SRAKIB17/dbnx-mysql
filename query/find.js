@@ -44,18 +44,16 @@ function findingQuery(table, config = {}) {
     if (aggregates) {
         const aggStrings = aggregates.map((agg) => {
             const { alias, ...functions } = agg; // Destructure the alias and the function
-            // Handle the case where there's an alias
-            if (alias) {
-                const functionStr = Object.entries(functions)
-                    .map(([func, column]) => `${func}(${column})`)
-                    .join(", ");
-                return `${functionStr} AS ${alias}`;
+            let functionStr = '';
+            for (const func in functions) {
+                if (!functions.hasOwnProperty(func))
+                    continue;
+                const column = functions[func];
+                const aliasName = alias
+                    ? alias
+                    : aggregates_alias[func] || func;
+                functionStr += `${functionStr ? ', ' : ''}${func}(${column}) AS ${aliasName}`;
             }
-            // Handle case where there's no alias
-            const functionStr = Object.entries(functions)
-                .map(([func, column]) => {
-                return `${func}(${column}) AS ${aggregates_alias[func] || func}`;
-            }).join(", ");
             return functionStr;
         });
         select += `${select ? ", " : ""}${aggStrings.join(", ")}`;
@@ -91,5 +89,5 @@ function findingQuery(table, config = {}) {
             query += ` OFFSET ${limitSkip.skip}`;
         }
     }
-    return query.trim();
+    return `${query.trim()};`;
 }
