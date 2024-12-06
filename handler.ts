@@ -512,3 +512,5 @@ export class DBnx {
         }
     }
 }
+
+export default DBnx;
