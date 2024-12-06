@@ -5,7 +5,6 @@ import { TableOptions } from "./model-define";
 import { destroy, findingQuery, insertInto, update } from "./query";
 import { ColumnOptions, CreateOptionsType, CreateParamsType, DeleteParamsType, FindAllParamsType, FindOneParamsType, ResponseType, UpdateParamsType } from './types';
 
-
 export class DBnx {
     #pool: Pool | null = null;
     #connection: Connection | null = null;
@@ -346,8 +345,8 @@ export class DBnx {
      * @returns {DBnx | Promise<ResponseType>} - The current DBnx instance or a promise with the response data.
      */
 
-    public findAll<tables extends string[]>(table: string, Config?: FindAllParamsType<tables>): DBnx;
-    public findAll<tables extends string[]>(model: typeof Model, Config?: FindAllParamsType<tables>): Promise<ResponseType>;
+    public findAll<Tables extends string[]>(table: string, Config?: FindAllParamsType<Tables>): DBnx;
+    public findAll<Tables extends string[]>(model: typeof Model, Config?: FindAllParamsType<Tables>): Promise<ResponseType>;
     public findAll(...args: any): DBnx | Promise<ResponseType> {
         if (args.length === 0) {
             throw new Error("No arguments provided to 'findAll'. Expected a table name or model.");
@@ -379,8 +378,8 @@ export class DBnx {
       * @param {FindOneParamsType} [Config] - Optional configurations for the query (e.g., filtering, sorting).
       * @returns {DBnx | Promise<ResponseType>} - The current DBnx instance or a promise with the response data.
       */
-    public findOne<tables extends string[]>(table: string, Config?: FindOneParamsType<tables>): DBnx;
-    public findOne<tables extends string[]>(model: typeof Model, Config?: FindOneParamsType<tables>): Promise<ResponseType>;
+    public findOne<Tables extends string[]>(table: string, Config?: FindOneParamsType<Tables>): DBnx;
+    public findOne<Tables extends string[]>(model: typeof Model, Config?: FindOneParamsType<Tables>): Promise<ResponseType>;
     public findOne(...args: any): DBnx | Promise<ResponseType> {
         if (args.length === 0) {
             throw new Error("No arguments provided to 'findOne'. Expected a table name or model.");
@@ -412,8 +411,8 @@ export class DBnx {
     * @param {UpdateParamsType} Props - The properties to update in the record.
     * @returns {DBnx | Promise<ResponseType>} - The current DBnx instance or a promise with the response data.
     */
-    public update<tables extends string[]>(table: string, Props: UpdateParamsType<tables>): DBnx;
-    public update<tables extends string[]>(model: typeof Model, Props: UpdateParamsType<tables>): Promise<ResponseType>;
+    public update<Tables extends string[]>(table: string, Props: UpdateParamsType<Tables>): DBnx;
+    public update<Tables extends string[]>(model: typeof Model, Props: UpdateParamsType<Tables>): Promise<ResponseType>;
     public update(...args: any): DBnx | Promise<ResponseType> {
 
         if (args.length === 0) {
@@ -444,8 +443,8 @@ export class DBnx {
      * @param {DeleteParamsType} conditions - The conditions to match for deleting the record(s).
      * @returns {DBnx | Promise<ResponseType>} - The current DBnx instance or a promise with the response data.
      */
-    public delete<tables extends string[]>(table: string, Props: DeleteParamsType<tables>): DBnx;
-    public delete<tables extends string[]>(model: typeof Model, Props: DeleteParamsType<tables>): Promise<ResponseType>;
+    public delete<Tables extends string[]>(table: string, Props: DeleteParamsType<Tables>): DBnx;
+    public delete<Tables extends string[]>(model: typeof Model, Props: DeleteParamsType<Tables>): Promise<ResponseType>;
     public delete(...args: any): DBnx | Promise<ResponseType> {
         if (args.length === 0) {
             throw new Error("No arguments provided to 'delete'. Expected a table name or model.");

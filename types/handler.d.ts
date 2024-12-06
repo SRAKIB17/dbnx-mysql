@@ -154,12 +154,12 @@ export class DBnx {
      * @param {FindAllParamsType} [Config] - Optional configurations for the query (e.g., filtering, sorting).
      * @returns {DBnx | Promise<ResponseType>} - The current DBnx instance or a promise with the response data.
      */
-    public findAll<tables extends string[]>(
+    public findAll<Tables extends string[]>(
         table: string,
         Config?: FindAllParamsType<tables>
     ): DBnx;
 
-    public findAll<tables extends string[]>(
+    public findAll<Tables extends string[]>(
         model: typeof Model,
         Config?: FindAllParamsType<tables>
     ): Promise<ResponseType>;
@@ -172,14 +172,14 @@ export class DBnx {
      * @param {FindOneParamsType} [Config] - Optional configurations for the query (e.g., filtering, sorting).
      * @returns {DBnx | Promise<ResponseType>} - The current DBnx instance or a promise with the response data.
      */
-    public findOne<tables extends string[]>(
+    public findOne<Tables extends string[]>(
         table: string,
         Config?: FindOneParamsType<tables>
     ): DBnx;
 
-    public findOne<tables extends string[]>(
+    public findOne<Tables extends string[]>(
         model: typeof Model,
-        Config?: FindOneParamsType<tables>
+        Config?: FindOneParamsType<Tables>
     ): Promise<ResponseType>;
 
     public findOne(...args: any): DBnx | Promise<ResponseType>;
@@ -190,14 +190,14 @@ export class DBnx {
      * @param {UpdateParamsType} Props - The properties to update in the record.
      * @returns {DBnx | Promise<ResponseType>} - The current DBnx instance or a promise with the response data.
      */
-    public update<tables extends string[]>(
+    public update<Tables extends string[]>(
         table: string,
-        Props: UpdateParamsType,
+        Props: UpdateParamsType<Tables>,
     ): DBnx;
 
-    public update<tables extends string[]>(
+    public update<Tables extends string[]>(
         model: typeof Model,
-        Props: UpdateParamsType,
+        Props: UpdateParamsType<Tables>,
     ): Promise<ResponseType>;
     public update(...args: any): DBnx | Promise<ResponseType>;
 
@@ -208,9 +208,9 @@ export class DBnx {
      * @param {DeleteParamsType} conditions - The conditions to match for deleting the record(s).
      * @returns {DBnx | Promise<ResponseType>} - The current DBnx instance or a promise with the response data.
      */
-    public delete(table: string, conditions: DeleteParamsType): DBnx;
-    public delete(model: typeof Model, conditions: DeleteParamsType): Promise<ResponseType>;
-    public delete(...args: any): DBnx | Promise<ResponseType>;
+    public delete<Tables extends string[]>(table: string, conditions: DeleteParamsType<Tables>): DBnx;
+    public delete<Tables extends string[]>(model: typeof Model, conditions: DeleteParamsType<Tables>): Promise<ResponseType>;
+    public delete<Table extends string[]>(...args: any): DBnx | Promise<ResponseType>;
 
     /**
     * Fetch all configurations used in the connection or pool.

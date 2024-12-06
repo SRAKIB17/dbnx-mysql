@@ -1,5 +1,6 @@
 import { Response } from 'express';
 import { QueryResult } from 'mysql2';
+import { Charset, Collation, Engine } from './engine options';
 
 export * from "./utilities";
 export * from "./handler";

@@ -52,7 +52,7 @@ export class Model extends ModelDefine {
       */
 
     static init(model: string, attributes: Attributes, instance: DBnx, options: TableOptions = {}) {
-        if (!instance || !(instance instanceof DBnx)) {
+        if (!instance) {
             throw new Error("🌋No instance passed Or instance not match");
         }
         if (!model) {
@@ -96,7 +96,7 @@ export class Model extends ModelDefine {
      * @param Config - Configuration for the query (e.g., filters, joins).
      * @returns The query result as a `ResponseType`.
      */
-    static async findAll<tables extends string[]>(Config?: FindAllParamsType<tables>): Promise<ResponseType> {
+    static async findAll<Tables extends string[]>(Config?: FindAllParamsType<Tables>): Promise<ResponseType> {
 
         if (Config && typeof Config !== 'object') {
             throw new Error("Config must be a non-empty object.");
@@ -110,7 +110,7 @@ export class Model extends ModelDefine {
     * @param Config - Configuration for the query (e.g., filters, joins).
     * @returns The first matching record as a `ResponseType`.
     */
-    static async findOne<tables extends string[]>(Config?: FindOneParamsType<tables>): Promise<ResponseType> {
+    static async findOne<Tables extends string[]>(Config?: FindOneParamsType<Tables>): Promise<ResponseType> {
         if (Config && typeof Config !== 'object') {
             throw new Error("Config must be a non-empty object.");
         }
@@ -126,7 +126,7 @@ export class Model extends ModelDefine {
      * @param Props - Update criteria and data.
      * @returns The result of the update as a `ResponseType`.
      */
-    static async update<tables extends string[]>(Props: UpdateParamsType<tables>): Promise<ResponseType> {
+    static async update<Tables extends string[]>(Props: UpdateParamsType<Tables>): Promise<ResponseType> {
         if (typeof Props !== 'object') {
             throw new Error("Props must be a non-empty object.");
         }
@@ -139,7 +139,7 @@ export class Model extends ModelDefine {
     * @param Props - Criteria for deletion.
     * @returns The result of the deletion as a `ResponseType`.
     */
-    static async delete<tables extends string[]>(Props: DeleteParamsType<tables>): Promise<ResponseType> {
+    static async delete<Tables extends string[]>(Props: DeleteParamsType<Tables>): Promise<ResponseType> {
         if (typeof Props !== 'object') {
             throw new Error("Props must be a non-empty object.");
         }
