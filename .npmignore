@@ -1,0 +1,11 @@
+# Ignore all .ts files except .d.ts files
+*.ts
+!*.d.ts
+
+# Optional: Allow specific .ts files if needed
+# !/specific-directory/*.ts
+/test
+/docs
+*.md
+!README.md
+tsconfig.json
