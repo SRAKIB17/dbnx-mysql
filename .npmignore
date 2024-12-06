@@ -5,10 +5,16 @@
 # Optional: Allow specific .ts files if needed
 # !/specific-directory/*.ts
 /test
+/query
+/utilities
+/DataTypes
 /docs
+/dist/test
+/dist/DataTypes
+
+
 *.md
 !README.md
 tsconfig.json
-/dist/test
 .npmignore
 .gitignore

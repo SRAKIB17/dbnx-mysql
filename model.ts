@@ -1,7 +1,7 @@
-import { ResponseType } from "../../type";
 import { DBnx } from "./handler";
 import { Attributes, ModelDefine, TableOptions } from "./model-define";
-import { CreateOptionsType, CreateParamsType, DeleteParamsType, FindAllParamsType, FindOneParamsType, UpdateParamsType, destroy, findingQuery, insertInto, update } from "./query";
+import { destroy, findingQuery, insertInto, update } from "./query";
+import { CreateOptionsType, CreateParamsType, DeleteParamsType, FindAllParamsType, FindOneParamsType, ResponseType, UpdateParamsType } from "./types";
 
 type Hooks = Record<string, Function[]>;
 
@@ -43,18 +43,13 @@ export class Model extends ModelDefine {
     }
 
     /**
-    * Initializes the model and database properties from the given model string.
-    * 
-    * @param {string} model - The model string in the format "database_name.model_name".
-    *                         Examples: "db_name.users" (with database name) or "users" (only model name).
-    * @param {Attributes} attributes - The schema definition for the model, containing field types and configurations.
-    * @param {DBnx} instance - An instance of the `DBnx` class used for interacting with the database.
-    * @param {TableOptions} [options={}] - Additional configuration options for the table, such as indexes or constraints.
-    * 
-    * @throws {Error} If the `instance` is not valid or if the `model` name is not provided.
-    * 
-    * @returns {this} The current instance of the model for method chaining.
-    */
+      * Initializes a model with schema and database information.
+      * @param model - Model name in the format `db_name.table_name` or just `table_name`.
+      * @param attributes - Schema definition of the model.
+      * @param instance - Instance of the database handler (`DBnx`).
+      * @param options - Additional table options such as engine, collation, etc.
+      * @returns The current `Model` instance.
+      */
 
     static init(model: string, attributes: Attributes, instance: DBnx, options: TableOptions = {}) {
         if (!instance || !(instance instanceof DBnx)) {
@@ -74,7 +69,12 @@ export class Model extends ModelDefine {
         return this
     }
 
-
+    /**
+   * Creates a new record in the database.
+   * @param values - Data to insert into the table.
+   * @param options - Optional settings for the insertion.
+   * @returns The result of the operation as a `ResponseType`.
+   */
     static async create(values: CreateParamsType<[]>, options?: CreateOptionsType): Promise<ResponseType>;
     // Implementation of the overloaded static method
     static async create(...args: any[]): Promise<ResponseType> {
@@ -91,6 +91,11 @@ export class Model extends ModelDefine {
         return result;
     }
 
+    /**
+     * Retrieves all records that match the provided configuration.
+     * @param Config - Configuration for the query (e.g., filters, joins).
+     * @returns The query result as a `ResponseType`.
+     */
     static async findAll<tables extends string[]>(Config?: FindAllParamsType<tables>): Promise<ResponseType> {
 
         if (Config && typeof Config !== 'object') {
@@ -100,6 +105,11 @@ export class Model extends ModelDefine {
         return result;
     }
 
+    /**
+    * Retrieves the first record that matches the provided configuration.
+    * @param Config - Configuration for the query (e.g., filters, joins).
+    * @returns The first matching record as a `ResponseType`.
+    */
     static async findOne<tables extends string[]>(Config?: FindOneParamsType<tables>): Promise<ResponseType> {
         if (Config && typeof Config !== 'object') {
             throw new Error("Config must be a non-empty object.");
@@ -111,6 +121,11 @@ export class Model extends ModelDefine {
         return result;
     }
 
+    /**
+     * Updates records in the table based on the provided criteria.
+     * @param Props - Update criteria and data.
+     * @returns The result of the update as a `ResponseType`.
+     */
     static async update<tables extends string[]>(Props: UpdateParamsType<tables>): Promise<ResponseType> {
         if (typeof Props !== 'object') {
             throw new Error("Props must be a non-empty object.");
@@ -119,6 +134,11 @@ export class Model extends ModelDefine {
         return result;
     }
 
+    /**
+    * Deletes records from the table based on the provided criteria.
+    * @param Props - Criteria for deletion.
+    * @returns The result of the deletion as a `ResponseType`.
+    */
     static async delete<tables extends string[]>(Props: DeleteParamsType<tables>): Promise<ResponseType> {
         if (typeof Props !== 'object') {
             throw new Error("Props must be a non-empty object.");
@@ -127,7 +147,7 @@ export class Model extends ModelDefine {
         return result;
     }
 
-    static async getColumnMetadata(): Promise<ColumnMetadata[]> {
+    protected static async getColumnMetadata(): Promise<ColumnMetadata[]> {
 
         const db = await this.dbInstance.execute(`
 SELECT 
@@ -294,25 +314,12 @@ WHERE
     }
     private static errorHandle(data: ResponseType) {
         if (!data?.success) {
-            throw Error(data.error, { cause: data });
+            throw Error(data.error);
+            // throw Error(data.error, {
+            //     message: data,
+            // });
         }
         return data;
     }
 }
 
-
-// export class GeneratedModel {
-//     static define<TAttributes>(
-//         modelName: string,
-//         attributes: Record<string, ColumnOptions>,
-//         options?: TableOptions,
-//     ) {
-//         class Generated extends Model {
-//             constructor() {
-//                 super(modelName, attributes, options);
-//             }
-//         }
-//         Object.defineProperty(Generated, 'name', { value: modelName });
-//         return this;
-//     }
-// }

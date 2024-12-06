@@ -1,13 +1,5 @@
-import { JoinsType, SortType } from "./types";
+import { DeleteParamsType } from "../types";
 import { parseJoins, parseSort } from "./utils";
-
-export interface DeleteParamsType<Tables extends string[]> {
-    where: string;
-    sort?: SortType<Tables>;
-    limit?: string | number;
-    joins?: JoinsType<Tables>;
-}
-
 
 export function destroy<Tables extends string[]>(table: string, { where, joins, limit, sort, }: DeleteParamsType<Tables>) {
     // Ensure required parameters are provided

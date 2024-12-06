@@ -1,15 +1,5 @@
+import { CreateOptionsType, CreateParamsType } from "../types";
 
-export type CreateParamsType<columns extends any[]> = {
-    [P in columns[number]]?: string | "CURRENT_TIMESTAMP"
-} | Record<string, string | number | 'CURRENT_TIMESTAMP'> |
-    {
-        [P in columns[number]]?: string | "CURRENT_TIMESTAMP"
-    }[]
-
-export type CreateOptionsType = {
-    uniqueColumn?: string | null,
-    onDuplicateUpdateFields?: string[]
-}
 
 export function insertInto<columns extends string[]>(
     table: string,

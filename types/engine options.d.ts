@@ -1,23 +1,3 @@
-import { Model } from "./model";
-
-export type ColumnOptions = {
-    modifyColumn?: string,
-    type: string;
-    allowNull?: boolean;
-    primaryKey?: boolean;
-    autoIncrement?: boolean;
-    onUpdate?: string | "CURRENT_TIMESTAMP";
-    defaultValue?: string | number | "CURRENT_TIMESTAMP" | null;
-    references?: string | {
-        model: string | typeof Model,
-        onUpdate?: "CASCADE" | "SET NULL" | "NO ACTION" | "RESTRICT";
-        // onUpdate?: "CASCADE" | "SET NULL" | "NO ACTION" | "RESTRICT" | "SET DEFAULT";
-        onDelete?: "CASCADE" | "SET NULL" | "NO ACTION" | "RESTRICT";
-        key: string; // Referenced column
-    };
-    unique?: boolean,
-    values?: readonly string[],
-}
 
 export type Collation = "armscii8_bin" |
     "armscii8_general_ci" |

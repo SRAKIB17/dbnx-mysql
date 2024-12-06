@@ -1,10 +1,9 @@
 import { createConnection } from "mysql2";
 import mysql, { Connection, ConnectionOptions, Pool, PoolOptions } from 'mysql2/promise';
-import { ResponseType } from '../../type';
 import { Model } from "./model";
 import { TableOptions } from "./model-define";
-import { CreateOptionsType, CreateParamsType, DeleteParamsType, destroy, FindAllParamsType, findingQuery, FindOneParamsType, insertInto, update, UpdateParamsType } from "./query";
-import { ColumnOptions } from "./types";
+import { destroy, findingQuery, insertInto, update } from "./query";
+import { ColumnOptions, CreateOptionsType, CreateParamsType, DeleteParamsType, FindAllParamsType, FindOneParamsType, ResponseType, UpdateParamsType } from './types';
 
 
 export class DBnx {
@@ -19,6 +18,11 @@ export class DBnx {
         this.#dbConfig = dbConfig;
     }
 
+    /**
+     * Establishes a database connection using either a connection pool or a single connection.
+     * @param {function} [props] - Optional callback function for success or error handling.
+     * @returns {DBnx} - The current instance of DBnx.
+     */
     connect(props?: (err?: any, success?: any) => void) {
         try {
             if (this.#usePool) {
@@ -86,6 +90,14 @@ export class DBnx {
         return { sql, params, additional, responseFn };
     }
 
+    /**
+     * Executes the provided SQL query with the given parameters and optional additional data.
+     * @param {string} [sql] - The SQL query string to be executed.
+     * @param {string[] | string[][]} [params] - Optional parameters for the SQL query.
+     * @param {Record<string, any>} [additional] - Optional additional data to be included in the response.
+     * @param {function} [responseFn] - Optional callback function to handle the response.
+     * @returns {Promise<ResponseType>} - A promise resolving to the response data.
+     */
     public async execute(
         sql?: string,
         params?: string[] | string[][],
@@ -178,7 +190,14 @@ export class DBnx {
         }
     }
 
-
+    /**
+     * Executes the provided SQL query with the given parameters and optional additional data, using the query method.
+     * @param {string} [sql] - The SQL query string to be executed.
+     * @param {string[] | string[][]} [params] - Optional parameters for the SQL query.
+     * @param {Record<string, any>} [additional] - Optional additional data to be included in the response.
+     * @param {function} [responseFn] - Optional callback function to handle the response.
+     * @returns {Promise<ResponseType>} - A promise resolving to the response data.
+     */
     public async executeQuery(
         sql?: string,
         params?: string[] | string[][],
@@ -219,7 +238,7 @@ export class DBnx {
         responseFn?: (data: any) => any
     ): Promise<ResponseType>;
 
-    // Implementation
+
     public async executeQuery(...args: any[]) {
         const { sql, additional, params, responseFn } = this.#argumentExecuteParse(...args)
         const query = sql || this.#query;
@@ -271,15 +290,11 @@ export class DBnx {
     }
 
     /**
-     * Defines a model using the provided model name, attributes, and options.
-     * 
+     * Defines a model with the specified name, attributes, and optional configuration.
      * @param {string} modelName - The name of the model (e.g., "users").
-     *                             This name will be used for various internal and external purposes, including table names and query generation.
-     * @param {Record<string, ColumnOptions>} attributes - A record object representing the model's columns and their configurations.
-     *                                                    The keys are the column names, and the values are the column options (e.g., type, unique, default value).
-     * @param {TableOptions} [options] - Optional configuration for the table, such as indexes, foreign key relationships, and other table constraints.
-     * 
-     * @returns {typeof Model} The defined model class, which can be used to perform CRUD operations on the corresponding database table.
+     * @param {Record<string, ColumnOptions>} attributes - The attributes of the model (columns).
+     * @param {TableOptions} [options] - Optional configurations such as indexes or foreign keys.
+     * @returns {typeof Model} - The defined model class for performing CRUD operations.
      */
     define(
         modelName: string,
@@ -293,6 +308,13 @@ export class DBnx {
         return model;
     }
 
+    /**
+     * Creates a new record in the specified table or model.
+     * @param {string | typeof Model} tableOrModel - The table name or the model class.
+     * @param {CreateParamsType} values - The values to be inserted into the table/model.
+     * @param {CreateOptionsType} [options] - Optional configuration for the insertion.
+     * @returns {DBnx | Promise<ResponseType>} - The current DBnx instance or a promise with the response data.
+     */
     create(table: string, values: CreateParamsType<[]>, options?: CreateOptionsType): DBnx;
     create(model: typeof Model, values: CreateParamsType<[]>, options?: CreateOptionsType): Promise<ResponseType>;
     create(...args: any): DBnx | Promise<ResponseType> {
@@ -306,7 +328,7 @@ export class DBnx {
         const values = args[1]
         const options = args[2] ?? {}
 
-        if (typeof args[0] === 'function' && 'model' in args[0]) {
+        if (typeof args[0] === 'function' && 'tableName' in args[0]) {
             return (args[0] as typeof Model).create(values, options);
         }
 
@@ -317,6 +339,12 @@ export class DBnx {
         this.#query += insertInto(table, values, options);
         return this
     }
+    /**
+     * Retrieves all records from the specified table or model based on the provided configuration.
+     * @param {string | typeof Model} tableOrModel - The table name or the model class.
+     * @param {FindAllParamsType} [Config] - Optional configurations for the query (e.g., filtering, sorting).
+     * @returns {DBnx | Promise<ResponseType>} - The current DBnx instance or a promise with the response data.
+     */
 
     public findAll<tables extends string[]>(table: string, Config?: FindAllParamsType<tables>): DBnx;
     public findAll<tables extends string[]>(model: typeof Model, Config?: FindAllParamsType<tables>): Promise<ResponseType>;
@@ -328,7 +356,7 @@ export class DBnx {
         let table: string = '';
         let Config: Record<string, any> = args[1] ?? {};
 
-        if (typeof args[0] === "function" && "model" in args[0]) {
+        if (typeof args[0] === "function" && "tableName" in args[0]) {
             // Case 2: First argument is a Model class
             table = args[0].model;
             return (args[0] as typeof Model).findAll(Config)
@@ -345,6 +373,12 @@ export class DBnx {
         return this
     }
 
+    /**
+      * Retrieves a single record from the specified table or model based on the provided configuration.
+      * @param {string | typeof Model} tableOrModel - The table name or the model class.
+      * @param {FindOneParamsType} [Config] - Optional configurations for the query (e.g., filtering, sorting).
+      * @returns {DBnx | Promise<ResponseType>} - The current DBnx instance or a promise with the response data.
+      */
     public findOne<tables extends string[]>(table: string, Config?: FindOneParamsType<tables>): DBnx;
     public findOne<tables extends string[]>(model: typeof Model, Config?: FindOneParamsType<tables>): Promise<ResponseType>;
     public findOne(...args: any): DBnx | Promise<ResponseType> {
@@ -355,7 +389,7 @@ export class DBnx {
         let table: string = '';
         let Config: Record<string, any> = args[1] ?? {};
         Config.limitSkip = { limit: 1 };
-        if (typeof args[0] === "function" && "model" in args[0]) {
+        if (typeof args[0] === "function" && "tableName" in args[0]) {
             // Case 2: First argument is a Model class
             table = args[0].model;
             return (args[0] as typeof Model).findOne(Config)
@@ -372,7 +406,12 @@ export class DBnx {
         return this
     }
 
-
+    /**
+    * Updates an existing record in the specified table with the provided properties.
+    * @param {string} table - The table to update.
+    * @param {UpdateParamsType} Props - The properties to update in the record.
+    * @returns {DBnx | Promise<ResponseType>} - The current DBnx instance or a promise with the response data.
+    */
     public update<tables extends string[]>(table: string, Props: UpdateParamsType<tables>): DBnx;
     public update<tables extends string[]>(model: typeof Model, Props: UpdateParamsType<tables>): Promise<ResponseType>;
     public update(...args: any): DBnx | Promise<ResponseType> {
@@ -384,7 +423,7 @@ export class DBnx {
         let table: string = '';
         let Props = args[1];
 
-        if (typeof args[0] === "function" && "model" in args[0]) {
+        if (typeof args[0] === "function" && "tableName" in args[0]) {
             table = args[0].model;
             return (args[0] as typeof Model).update(Props)
         }
@@ -399,6 +438,12 @@ export class DBnx {
         return this
     }
 
+    /**
+     * Deletes a record from the specified table based on the provided parameters.
+     * @param {string} table - The table from which to delete the record.
+     * @param {DeleteParamsType} conditions - The conditions to match for deleting the record(s).
+     * @returns {DBnx | Promise<ResponseType>} - The current DBnx instance or a promise with the response data.
+     */
     public delete<tables extends string[]>(table: string, Props: DeleteParamsType<tables>): DBnx;
     public delete<tables extends string[]>(model: typeof Model, Props: DeleteParamsType<tables>): Promise<ResponseType>;
     public delete(...args: any): DBnx | Promise<ResponseType> {
@@ -408,7 +453,7 @@ export class DBnx {
         let table: string = '';
         let Props = args[1] ?? {};
 
-        if (typeof args[0] === "function" && "model" in args[0]) {
+        if (typeof args[0] === "function" && "tableName" in args[0]) {
             table = args[0].model;
             return (args[0] as typeof Model).delete(Props)
         }
@@ -435,17 +480,30 @@ export class DBnx {
         }
         return null;
     }
+
+    /**
+   * Sets the SQL query string that will be executed later.
+   * @param {string} sql - The SQL query string to be set.
+   * @returns {DBnx} - The current instance of DBnx for method chaining.
+   */
     public setQuery(query: string) {
         this.#query = query;
         return this
     }
-    // Build method that returns the query and resets it
+    /**
+      * Builds the SQL query string by appending parameters and preparing the final query string.
+      * @returns {string} - The final SQL query string after appending the parameters.
+      */
     public build(): string {
         const build_query = this.#query;  // Store the current query in `x`
         this.#query = '';  // Reset the query
         return build_query;  // Return the original query
     }
 
+    /**
+   * Closes the connection or pool, ensuring all resources are freed.
+   * @returns {Promise<void>} - A promise that resolves when the connection or pool is closed.
+   */
     public async close(): Promise<void> {
         if (this.#pool) {
             await this.#pool.end();

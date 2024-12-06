@@ -1,5 +1,4 @@
-import { FindAllParamsType } from "./find";
-import { JoinsType, SortType } from "./types";
+import { FindAllParamsType, JoinsType, SortType } from "../types";
 
 export function parseSort<Tables extends string[]>(sort: SortType<Tables>): string {
     if (!sort) return '';

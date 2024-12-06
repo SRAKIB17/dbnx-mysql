@@ -2,7 +2,7 @@
     "name": "@dbnx/mysql",
     "version": "1.0.2",
     "description": "A powerful and enhanced ORM library for MySQL, offering query execution, model creation, and full relational management.",
-    "main": "index.js",
+    "main": "./dist/index.js",
     "types": "./types/index.d.ts",
     "scripts": {
         "build": "tsc",

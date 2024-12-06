@@ -19,7 +19,7 @@ export class ModelDefine {
     static tableOptions: TableOptions;
     static dbInstance: DBnx;
     static tableName: string;
-    static dbTableIdentifier: string 
+    static dbTableIdentifier: string
 
 
     static generateDDL(attributes: Attributes,) {
@@ -83,7 +83,7 @@ export class ModelDefine {
                 else {
                     const { model, key, onDelete, onUpdate } = options.references;
 
-                    if (typeof model === "function" && "model" in model) {
+                    if (typeof model === "function" && "tableName" in model) {
                         references += ` FOREIGN KEY (\`${columnName}\`) REFERENCES \`${(model as typeof Model).tableName}\` (\`${key}\`)`;
                     } else {
                         references += ` FOREIGN KEY (\`${columnName}\`) REFERENCES \`${model}\` (\`${key}\`)`;

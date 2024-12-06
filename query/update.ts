@@ -1,26 +1,5 @@
-import { JoinsType } from "./types";
+import { UpdateParamsType } from "../types";
 import { parseJoins, parseSort } from "./utils";
-
-export type UpdateParamsType<Tables extends string[]> = {
-    values?: {
-        [key: string]: string | number | null | {
-            case: {
-                when: string;  // The condition in the WHEN clause
-                then: any;     // The value to set in the THEN clause
-            }[];   // The CASE structure with an array of WHEN/THEN conditions
-            default: any;       // The default value for the column when no conditions match
-        };
-    },
-    sort?: { [P in Tables[number]]?: Record<string, 1 | -1> } | Record<string, 1 | -1> | string,
-    where: string,
-    defaultValues?: string[],
-    limit?: string | number,
-    joins?: JoinsType<Tables>,
-    fromSubQuery?: Record<string, string>,
-    setCalculations?: {    // For SET calculation
-        [key: string]: string;
-    }
-}
 
 export function update<Tables extends string[]>(table: string, {
     joins = [],

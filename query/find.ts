@@ -1,8 +1,5 @@
-import { JoinsType, SortType } from "./types";
+import { FindAllParamsType } from "../types";
 import { parseColumns, parseGroupBy, parseJoins, parseSort } from "./utils";
-
-export type CommonStringObjectArray<Tables extends string[], value> =
-    { [P in Tables[number]]?: value } | string | string[];
 
 
 let aggregates_alias = {
@@ -11,63 +8,6 @@ let aggregates_alias = {
     'SUM': 'summation',
     'COUNT': 'count',
     'AVG': 'average'
-}
-
-export interface FindOneParamsType<Tables extends string[]> {
-    distinct?: boolean;
-    sort?: SortType<Tables>;
-
-    columns?: {
-        [P in Tables[number]]?: string[]
-    } | {
-        extra?: string | string[]
-    } | string | string[];
-    groupBy?: {
-        [P in Tables[number]]?: string[]
-    } | {
-        extra?: string | string[]
-    } | string | string[];
-
-    aggregates?: Array<{
-        [K in keyof Record<'MIN' | 'MAX' | 'SUM' | 'COUNT' | 'AVG', string>]?: string;
-    } | { alias?: string; }>
-    where?: string,
-    having?: string,
-    subQueries?: {
-        query: string,
-        as?: string,
-    }[],
-    joins?: JoinsType<Tables>,
-    recursiveCTE?: { baseCase: string, recursiveCase: string, alias: string },
-}
-
-export interface FindAllParamsType<Tables extends string[]> {
-    distinct?: boolean;
-    sort?: SortType<Tables>;
-
-    limitSkip?: { limit?: number; skip?: number };
-    columns?: {
-        [P in Tables[number]]?: string[]
-    } | {
-        extra?: string | string[]
-    } | string | string[];
-    groupBy?: {
-        [P in Tables[number]]?: string[]
-    } | {
-        extra?: string | string[]
-    } | string | string[];
-
-    aggregates?: Array<{
-        [K in keyof Record<'MIN' | 'MAX' | 'SUM' | 'COUNT' | 'AVG', string>]?: string;
-    } | { alias?: string; }>
-    where?: string,
-    having?: string,
-    subQueries?: {
-        query: string,
-        as?: string,
-    }[],
-    joins?: JoinsType<Tables>,
-    recursiveCTE?: { baseCase: string, recursiveCase: string, alias: string },
 }
 
 export function findingQuery<Tables extends string[]>(table: string, config: FindAllParamsType<Tables> = {}): string {
