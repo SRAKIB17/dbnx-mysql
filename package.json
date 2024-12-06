@@ -1,6 +1,6 @@
 {
     "name": "@dbnx/mysql",
-    "version": "1.0.2",
+    "version": "1.0.4",
     "description": "A powerful and enhanced ORM library for MySQL, offering query execution, model creation, and full relational management.",
     "main": "./dist/index.js",
     "types": "./types/index.d.ts",
@@ -42,8 +42,7 @@
     "homepage": "https://github.com/SRAKIB17/dbnx-mysql#readme",
     "files": [
         "dist",
-        "src",
-        "index.d.ts",
+        "types",
         "README.md"
     ]
 }

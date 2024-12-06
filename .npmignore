@@ -1,6 +1,6 @@
 # Ignore all .ts files except .d.ts files
-*.ts
 !*.d.ts
+*.ts
 
 # Optional: Allow specific .ts files if needed
 # !/specific-directory/*.ts

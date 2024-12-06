@@ -4,7 +4,7 @@ import { QueryResult } from 'mysql2';
 export * from "./utilities";
 export * from "./handler";
 export * from "./model";
-export * from "./DataTypes";
+export * from "./data types";
 export * from "./query";
 export * from "./engine options";
 
