@@ -26,7 +26,7 @@ export class Model extends ModelDefine {
         super()
         Object.assign(this, attributes);
     }
-    // Hooks management
+
     static addHook(hookName: string, fn: Function) {
         if (!this.hooks[hookName]) {
             this.hooks[hookName] = [];
@@ -60,8 +60,8 @@ export class Model extends ModelDefine {
         }
         this.modelAttributes = attributes;
         const parts = model?.split('.');
-        this.database = parts?.length > 1 ? parts[0] : instance.getConfig()?.database; // Extract database name if provided
-        this.tableName = parts?.[parts.length - 1];                  // Extract the model name
+        this.database = parts?.length > 1 ? parts[0] : instance.getConfig()?.database;
+        this.tableName = parts?.[parts.length - 1];
         this.tableOptions = options;
         this.dbInstance = instance;
         this.dbTableIdentifier = `${this.database ? `${this.database}.` : ""}${this.tableName}`
@@ -76,14 +76,10 @@ export class Model extends ModelDefine {
    * @returns The result of the operation as a `ResponseType`.
    */
     static async create(values: CreateParamsType<[]>, options?: CreateOptionsType): Promise<ResponseType>;
-    // Implementation of the overloaded static method
     static async create(...args: any[]): Promise<ResponseType> {
-        // Check if the first argument is a string (table name)
 
         let values = args[0];
         let options = args[1] || {};
-        // await this.runHooks('beforeCreate', values);
-        // Ensure the values is an object and not empty
         if (!values || typeof values !== 'object' || Object.keys(values).length === 0) {
             throw new Error("Values must be a non-empty object.");
         }
@@ -198,7 +194,7 @@ WHERE
         const constraintsQuery = new Set();
         const columnMetadata = await this.getColumnMetadata();
 
-        // Modify columns with primary keys
+
         columnMetadata
             ?.filter((r) => r?.key === 'PRI')
             ?.forEach((r) => {
@@ -208,7 +204,7 @@ WHERE
 
 
         if (constraintList?.length) {
-            console.log('\x1b[36m%s\x1b[0m', 'Constraints to drop:', this.dbTableIdentifier); // Light Cyan for info
+            console.log('\x1b[36m%s\x1b[0m', 'Constraints to drop:', this.dbTableIdentifier);
             console.table(constraintList);
         }
 
@@ -231,7 +227,6 @@ WHERE
                 case 'DEFAULT':
                 case 'NOT NULL':
                     console.log(`Attempting to drop ${constraintType} on ${constraintName}`);
-                    // Adjust the column instead of dropping the constraint directly
                     const column = columnMetadata.find((col) => col.field === constraintName);
                     if (column) {
                         const definition = `${column.type}${column.null === 'YES' ? ' NULL' : ' NOT NULL'}`;
@@ -249,7 +244,7 @@ WHERE
             if (!result?.success) this.errorHandle(result);
         }
     }
-    // Drop a model if it exists
+
     static async drop() {
         await this.dropTableConstraints();
         const query = `DROP TABLE IF EXISTS ${this.dbTableIdentifier}`;
@@ -259,18 +254,17 @@ WHERE
         await this.dropTableConstraints();
 
         if (force) {
-            // Drop the table if `force` is true
             await this.drop();
             return this.errorHandle(await this.dbInstance.execute(this.ddlQuery));
         }
 
         const columnData = (await this.getColumnMetadata() as any[])?.reduce((acc, curr) => {
-            acc[curr?.field] = curr; // Add the current metadata to the accumulator
-            return acc; // Return updated accumulator
+            acc[curr?.field] = curr;
+            return acc;
         }, {}) as TableMetadata;
 
         if (typeof columnData !== 'object' || Object.keys(columnData)?.length === 0) {
-            // Table does not exist or is empty; recreate the table
+
             await this.drop();
             return this.errorHandle(await this.dbInstance.execute(this.ddlQuery));
         }
@@ -283,7 +277,6 @@ WHERE
             if (!this.modelAttributes.hasOwnProperty(key)) continue;
             const value = this.modelAttributes[key];
 
-            // if (value?.primaryKey && (key in columnData) && columnData[key]?.key) continue;
 
             if (value?.modifyColumn && (value?.modifyColumn in columnData)) {
                 modifyColumn.push(value?.modifyColumn)
@@ -295,7 +288,6 @@ WHERE
                 query += `,\n MODIFY COLUMN ${this.generateColumnsSQL(
                     { [key]: value }, true
                 )}`;
-                // console.log(value)
             }
             else {
                 query += `,\n ADD COLUMN ${this.generateColumnsSQL(
@@ -315,9 +307,6 @@ WHERE
     private static errorHandle(data: ResponseType) {
         if (!data?.success) {
             throw Error(data.error);
-            // throw Error(data.error, {
-            //     message: data,
-            // });
         }
         return data;
     }

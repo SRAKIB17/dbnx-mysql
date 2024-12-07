@@ -29,17 +29,16 @@ export class ModelDefine {
     }
 
     protected static generateColumnsSQL(attributes: Attributes, isAlter = false) {
-        let columnsSQL = ''; // To collect all the column definitions
+        let columnsSQL = '';
         let referencesSql = '';
 
         for (const columnName in attributes) {
-            if (!attributes.hasOwnProperty(columnName)) continue; // Skip prototype properties
+            if (!attributes.hasOwnProperty(columnName)) continue;
             const options: ColumnOptions = attributes[columnName];
 
             let columnSQL = `\`${columnName}\``;
 
             if (options.values && (options?.type == "ENUM" || options?.type == 'enum')) {
-                //! if (options.values && options?.type == "ENUM" ) {
                 columnSQL += ` ENUM(${options.values.map(value => `'${value}'`).join(', ')})`;
             }
             else {
@@ -55,7 +54,6 @@ export class ModelDefine {
             else if (options.allowNull !== undefined && options.defaultValue == undefined) {
                 columnSQL += " NOT NULL";
             }
-            // Check for unique constraint
             else if (options.defaultValue !== undefined) {
                 const defaultValue =
                     options.defaultValue === null
@@ -77,7 +75,6 @@ export class ModelDefine {
             if (options.references) {
                 let references = `,\n${isAlter ? " ADD CONSTRAINT " : ""}`
                 if (typeof options.references === "string") {
-                    // If references is a string (i.e., just the table name), generate the REFERENCES clause
                     references += options.references;
                 }
                 else {

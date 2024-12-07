@@ -8,7 +8,7 @@ import { ColumnOptions, CreateOptionsType, CreateParamsType, DeleteParamsType, F
 export class DBnx {
     #pool: Pool | null = null;
     #connection: Connection | null = null;
-    #query: string = ""; // Store the current query
+    #query: string = "";
     #dbConfig: ConnectionOptions | PoolOptions | string | null = null;
     #usePool: boolean = false;
 
@@ -48,7 +48,7 @@ export class DBnx {
         let additional: Record<string, any> | undefined;
         let responseFn: ((data: any) => any) | undefined;
 
-        // Argument parsing logic
+
         if (args.length === 4) {
             [sql, params, additional, responseFn] = args;
         } else if (args.length === 3) {
@@ -137,7 +137,7 @@ export class DBnx {
         responseFn?: (data: any) => any
     ): Promise<ResponseType>;
 
-    // Implementation
+
     public async execute(...args: any[]) {
         const { sql, additional, params, responseFn } = this.#argumentExecuteParse(...args)
 
@@ -356,13 +356,13 @@ export class DBnx {
         let Config: Record<string, any> = args[1] ?? {};
 
         if (typeof args[0] === "function" && "tableName" in args[0]) {
-            // Case 2: First argument is a Model class
+
             table = args[0].model;
             return (args[0] as typeof Model).findAll(Config)
         }
 
         if (typeof args[0] === "string") {
-            // Case 1: First argument is a table name
+
             table = args[0];
         }
         else {
@@ -389,13 +389,13 @@ export class DBnx {
         let Config: Record<string, any> = args[1] ?? {};
         Config.limitSkip = { limit: 1 };
         if (typeof args[0] === "function" && "tableName" in args[0]) {
-            // Case 2: First argument is a Model class
+
             table = args[0].model;
             return (args[0] as typeof Model).findOne(Config)
         }
 
         if (typeof args[0] === "string") {
-            // Case 1: First argument is a table name
+
             table = args[0];
         }
         else {
@@ -494,9 +494,9 @@ export class DBnx {
       * @returns {string} - The final SQL query string after appending the parameters.
       */
     public build(): string {
-        const build_query = this.#query;  // Store the current query in `x`
-        this.#query = '';  // Reset the query
-        return build_query;  // Return the original query
+        const build_query = this.#query;
+        this.#query = '';
+        return build_query;
     }
 
     /**
