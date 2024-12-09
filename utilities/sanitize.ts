@@ -12,7 +12,7 @@ export function sanitize(input: string | number | null): string {
  * @param value - The value to be escaped.
  * @returns The escaped string.
  */
-function escape(val: any): string {
+export function escape(val: any): string {
     if (val === undefined || val === null) {
         return 'NULL';
     }
