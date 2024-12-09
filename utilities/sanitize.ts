@@ -12,26 +12,50 @@ export function sanitize(input: string | number | null): string {
  * @param value - The value to be escaped.
  * @returns The escaped string.
  */
-export function escape(value: any): string {
-    if (value === null || value === undefined) {
+function escape(val: any): string {
+    if (val === undefined || val === null) {
         return 'NULL';
     }
-    if (typeof value === 'number') {
-        return value.toString();
+
+    if (typeof val === 'number') {
+        return val.toString();
     }
-    if (typeof value === 'boolean') {
-        return value ? '1' : '0';
+
+    if (typeof val === 'boolean') {
+        return val ? '1' : '0';
     }
-    if (typeof value === 'string') {
-        return `'${value
+
+    if (typeof val === 'string') {
+        return `'${val
             .replace(/\\/g, '\\\\') // Escapes backslashes
-            .replace(/'/g, "\\'") // Escapes single quotes
-            .replace(/"/g, '\\"') // Escapes double quotes
+            .replace(/'/g, "\\'")  // Escapes single quotes
+            .replace(/"/g, '\\"')  // Escapes double quotes
             .replace(/\n/g, '\\n') // Escapes newlines
             .replace(/\r/g, '\\r') // Escapes carriage returns
             .replace(/\t/g, '\\t')}'`; // Escapes tabs
     }
-    throw new Error(`Unsupported value type: ${typeof value}`);
+
+    if (typeof val === 'object') {
+        if (Object.prototype.toString.call(val) === '[object Date]') {
+            return `'${(val as Date).toISOString()}'`;
+        } else if (Array.isArray(val)) {
+            return `(${val.map((item) => escape(item)).join(', ')})`;
+        } else if (Buffer.isBuffer(val)) {
+            return `'${val.toString('hex')}'`;
+        } else if (typeof (val as any).toSqlString === 'function') {
+            return String((val as { toSqlString: () => string }).toSqlString());
+        } else {
+            let result = '';
+            for (const key in val) {
+                if (Object.prototype.hasOwnProperty.call(val, key)) {
+                    const value = escape(val[key]);
+                    result += `${key}=${value}, `;
+                }
+            }
+            return result.slice(0, -2); // Remove trailing comma and space
+        }
+    }
+    return `${val}`;
 }
 
 /**
