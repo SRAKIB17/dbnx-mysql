@@ -156,12 +156,12 @@ export class DBnx {
      */
     public findAll<Tables extends string[]>(
         table: string,
-        Config?: FindAllParamsType<tables>
+        Config?: FindAllParamsType<Tables>
     ): DBnx;
 
     public findAll<Tables extends string[]>(
         model: typeof Model,
-        Config?: FindAllParamsType<tables>
+        Config?: FindAllParamsType<Tables>
     ): Promise<ResponseType>;
 
     public findAll<Tables extends string[]>(...args: any): DBnx | Promise<ResponseType>;
@@ -174,7 +174,7 @@ export class DBnx {
      */
     public findOne<Tables extends string[]>(
         table: string,
-        Config?: FindOneParamsType<tables>
+        Config?: FindOneParamsType<Tables>
     ): DBnx;
 
     public findOne<Tables extends string[]>(
