@@ -70,7 +70,7 @@ export class ModelDefine {
 
             if (options.primaryKey) columnSQL += " PRIMARY KEY";
 
-            if (options.autoIncrement) columnSQL += ` AUTO_INCREMENT}`;
+            if (options.autoIncrement) columnSQL += ` AUTO_INCREMENT`;
 
             if (options.references) {
                 let references = `,\n${isAlter ? " ADD CONSTRAINT " : ""}`

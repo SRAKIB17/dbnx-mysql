@@ -31,8 +31,11 @@ export function escape(val: any): string {
             .replace(/'/g, "\\'")  // Escapes single quotes
             .replace(/"/g, '\\"')  // Escapes double quotes
             .replace(/\n/g, '\\n') // Escapes newlines
+            .replace(/\t/g, '\t')// Escapes tabs
             .replace(/\r/g, '\\r') // Escapes carriage returns
-            .replace(/\t/g, '\\t')}'`; // Escapes tabs
+            .replace(/\f/g, "") // Escape form feed
+            }'`;
+
     }
 
     if (typeof val === 'object') {
@@ -45,14 +48,7 @@ export function escape(val: any): string {
         } else if (typeof (val as any).toSqlString === 'function') {
             return String((val as { toSqlString: () => string }).toSqlString());
         } else {
-            let result = '';
-            for (const key in val) {
-                if (Object.prototype.hasOwnProperty.call(val, key)) {
-                    const value = escape(val[key]);
-                    result += `${key}=${value}, `;
-                }
-            }
-            return result.slice(0, -2); // Remove trailing comma and space
+            return JSON.stringify(val); // Remove trailing comma and space
         }
     }
     return `${val}`;

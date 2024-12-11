@@ -1,4 +1,5 @@
 import { CreateOptionsType, CreateParamsType } from "../types";
+import { escape } from "../utilities";
 
 
 export function insertInto<columns extends string[]>(
@@ -18,13 +19,13 @@ export function insertInto<columns extends string[]>(
         if (value === 'CURRENT_TIMESTAMP') {
             return value;
         }
-        if (value == null) {
+        if (value == null || value == undefined) {
             return 'NULL'
         }
 
         if (typeof value === 'string') {
             // Escape single quotes and other dangerous characters
-            return `'${value.replace(/'/g, "''")}'`; // Escape single quotes within strings
+            return escape(value)// Escape single quotes within strings
         }
 
         // For numbers, booleans, or other types, just return the value

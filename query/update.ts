@@ -1,4 +1,5 @@
 import { UpdateParamsType } from "../types";
+import { escape } from "../utilities";
 import { parseJoins, parseSort } from "./utils";
 
 export function update<Tables extends string[]>(table: string, {
@@ -32,16 +33,17 @@ export function update<Tables extends string[]>(table: string, {
         if (typeof value === 'object' && value?.hasOwnProperty('case')) {
             const caseStatement = value?.case?.map((caseCondition) => {
                 const { when, then } = caseCondition;
-                return `WHEN ${when} THEN ${JSON.stringify(then)}`;
+                return `WHEN ${when} THEN ${escape(then)}`;
             }).join(' ');
 
-            updateInfo += `${updateInfo ? ', ' : ''}${column} = CASE ${caseStatement} ELSE ${JSON.stringify(value?.default)} END`;
-        } else {
+            updateInfo += `${updateInfo ? ', ' : ''}${column} = CASE ${caseStatement} ELSE ${escape(value?.default)} END`;
+        }
+        else {
             const isString = typeof value === 'string';
             const isNull = value == null;
 
             const updateValue = isString ?
-                JSON.stringify(value?.trim()) :
+                escape(value?.trim()) :
                 isNull ? "NULL" : value;
 
             updateInfo += `${updateInfo ? ', ' : ''}${column} = ${updateValue}`;

@@ -80,7 +80,7 @@ export class Model extends ModelDefine {
 
         let values = args[0];
         let options = args[1] || {};
-        if (!values || typeof values !== 'object' || Object.keys(values).length === 0) {
+        if (!values || typeof values !== 'object' || !Object.keys(values).length) {
             throw new Error("Values must be a non-empty object.");
         }
         const result = await this.dbInstance.execute(insertInto(this.dbTableIdentifier, values, options));
@@ -305,6 +305,7 @@ WHERE
         return this.errorHandle(await this.dbInstance.execute(query));
     }
     private static errorHandle(data: ResponseType) {
+
         if (!data?.success) {
             throw Error(data.error);
         }
