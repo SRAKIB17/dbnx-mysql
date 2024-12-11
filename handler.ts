@@ -347,7 +347,7 @@ export class DBnx {
 
     public findAll<Tables extends string[]>(table: string, Config?: FindAllParamsType<Tables>): DBnx;
     public findAll<Tables extends string[]>(model: typeof Model, Config?: FindAllParamsType<Tables>): Promise<ResponseType>;
-    public findAll(...args: any): DBnx | Promise<ResponseType> {
+    public findAll<Tables extends string[]>(...args: any): DBnx | Promise<ResponseType> {
         if (args.length === 0) {
             throw new Error("No arguments provided to 'findAll'. Expected a table name or model.");
         }
@@ -358,7 +358,7 @@ export class DBnx {
         if (typeof args[0] === "function" && "tableName" in args[0]) {
 
             table = args[0].model;
-            return (args[0] as typeof Model).findAll(Config)
+            return (args[0] as typeof Model).findAll<Tables>(Config)
         }
 
         if (typeof args[0] === "string") {
@@ -368,7 +368,7 @@ export class DBnx {
         else {
             throw new Error("Invalid first argument: must be a table name or a Model class.");
         }
-        this.#query += findingQuery(table, Config)
+        this.#query += findingQuery<Tables>(table, Config)
         return this
     }
 
@@ -380,7 +380,7 @@ export class DBnx {
       */
     public findOne<Tables extends string[]>(table: string, Config?: FindOneParamsType<Tables>): DBnx;
     public findOne<Tables extends string[]>(model: typeof Model, Config?: FindOneParamsType<Tables>): Promise<ResponseType>;
-    public findOne(...args: any): DBnx | Promise<ResponseType> {
+    public findOne<Tables extends string[]>(...args: any): DBnx | Promise<ResponseType> {
         if (args.length === 0) {
             throw new Error("No arguments provided to 'findOne'. Expected a table name or model.");
         }
@@ -391,7 +391,7 @@ export class DBnx {
         if (typeof args[0] === "function" && "tableName" in args[0]) {
 
             table = args[0].model;
-            return (args[0] as typeof Model).findOne(Config)
+            return (args[0] as typeof Model).findOne<Tables>(Config)
         }
 
         if (typeof args[0] === "string") {
@@ -401,7 +401,7 @@ export class DBnx {
         else {
             throw new Error("Invalid first argument: must be a table name or a Model class.");
         }
-        this.#query += findingQuery(table, Config)
+        this.#query += findingQuery<Tables>(table, Config)
         return this
     }
 
@@ -413,7 +413,7 @@ export class DBnx {
     */
     public update<Tables extends string[]>(table: string, Props: UpdateParamsType<Tables>): DBnx;
     public update<Tables extends string[]>(model: typeof Model, Props: UpdateParamsType<Tables>): Promise<ResponseType>;
-    public update(...args: any): DBnx | Promise<ResponseType> {
+    public update<Tables extends string[]>(...args: any): DBnx | Promise<ResponseType> {
 
         if (args.length === 0) {
             throw new Error("No arguments provided to 'update'. Expected a table name or model.");
@@ -424,7 +424,7 @@ export class DBnx {
 
         if (typeof args[0] === "function" && "tableName" in args[0]) {
             table = args[0].model;
-            return (args[0] as typeof Model).update(Props)
+            return (args[0] as typeof Model).update<Tables>(Props)
         }
 
         if (typeof args[0] === "string") {
@@ -433,7 +433,7 @@ export class DBnx {
         else {
             throw new Error("Invalid first argument: must be a table name or a Model class.");
         }
-        this.#query += update(table, Props)
+        this.#query += update<Tables>(table, Props)
         return this
     }
 
@@ -445,7 +445,7 @@ export class DBnx {
      */
     public delete<Tables extends string[]>(table: string, Props: DeleteParamsType<Tables>): DBnx;
     public delete<Tables extends string[]>(model: typeof Model, Props: DeleteParamsType<Tables>): Promise<ResponseType>;
-    public delete(...args: any): DBnx | Promise<ResponseType> {
+    public delete<Tables extends string[]>(...args: any): DBnx | Promise<ResponseType> {
         if (args.length === 0) {
             throw new Error("No arguments provided to 'delete'. Expected a table name or model.");
         }
@@ -454,7 +454,7 @@ export class DBnx {
 
         if (typeof args[0] === "function" && "tableName" in args[0]) {
             table = args[0].model;
-            return (args[0] as typeof Model).delete(Props)
+            return (args[0] as typeof Model).delete<Tables>(Props)
         }
         if (typeof args[0] === "string") {
             table = args[0];
@@ -462,7 +462,7 @@ export class DBnx {
         else {
             throw new Error("Invalid first argument: must be a table name or a Model class.");
         }
-        this.#query += destroy(table, Props)
+        this.#query += destroy<Tables>(table, Props)
         return this;
     }
 

@@ -97,7 +97,7 @@ export class Model extends ModelDefine {
         if (Config && typeof Config !== 'object') {
             throw new Error("Config must be a non-empty object.");
         }
-        const result = await this.dbInstance.execute(findingQuery(this.dbTableIdentifier, Config));
+        const result = await this.dbInstance.execute(findingQuery<Tables>(this.dbTableIdentifier, Config));
         return result;
     }
 
@@ -113,7 +113,7 @@ export class Model extends ModelDefine {
 
         let config: Record<string, any> = Config ?? {};
         config.limitSkip = { limit: 1 };
-        const result = await this.dbInstance.execute(findingQuery(this.dbTableIdentifier, config));
+        const result = await this.dbInstance.execute(findingQuery<Tables>(this.dbTableIdentifier, config));
         return result;
     }
 
@@ -126,7 +126,7 @@ export class Model extends ModelDefine {
         if (typeof Props !== 'object') {
             throw new Error("Props must be a non-empty object.");
         }
-        const result = await this.dbInstance.execute(update(this.dbTableIdentifier, Props));
+        const result = await this.dbInstance.execute(update<Tables>(this.dbTableIdentifier, Props));
         return result;
     }
 
@@ -139,7 +139,7 @@ export class Model extends ModelDefine {
         if (typeof Props !== 'object') {
             throw new Error("Props must be a non-empty object.");
         }
-        const result = await this.dbInstance.execute(destroy(this.dbTableIdentifier, Props));
+        const result = await this.dbInstance.execute(destroy<Tables>(this.dbTableIdentifier, Props));
         return result;
     }
 
