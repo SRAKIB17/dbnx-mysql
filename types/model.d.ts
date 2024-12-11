@@ -53,8 +53,8 @@ export class Model {
      * @param Config - Configuration for the query (e.g., filters, joins).
      * @returns The query result as a `ResponseType`.
      */
-    static findAll<tables extends string[]>(
-        Config?: FindAllParamsType<tables>
+    static findAll<Tables extends string[]>(
+        Config?: FindAllParamsType<Tables>
     ): Promise<ResponseType>;
 
     /**
@@ -62,8 +62,8 @@ export class Model {
      * @param Config - Configuration for the query (e.g., filters, joins).
      * @returns The first matching record as a `ResponseType`.
      */
-    static findOne<tables extends string[]>(
-        Config?: FindOneParamsType<tables>
+    static findOne<Tables extends string[]>(
+        Config?: FindOneParamsType<Tables>
     ): Promise<ResponseType>;
 
     /**
@@ -71,8 +71,8 @@ export class Model {
      * @param Props - Update criteria and data.
      * @returns The result of the update as a `ResponseType`.
      */
-    static update<tables extends string[]>(
-        Props: UpdateParamsType<tables>
+    static update<Tables extends string[]>(
+        Props: UpdateParamsType<Tables>
     ): Promise<ResponseType>;
 
     /**
@@ -80,8 +80,8 @@ export class Model {
      * @param Props - Criteria for deletion.
      * @returns The result of the deletion as a `ResponseType`.
      */
-    static delete<tables extends string[]>(
-        Props: DeleteParamsType<tables>
+    static delete<Tables extends string[]>(
+        Props: DeleteParamsType<Tables>
     ): Promise<ResponseType>;
 
 

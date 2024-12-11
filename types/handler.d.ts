@@ -164,7 +164,7 @@ export class DBnx {
         Config?: FindAllParamsType<tables>
     ): Promise<ResponseType>;
 
-    public findAll(...args: any): DBnx | Promise<ResponseType>;
+    public findAll<Tables extends string[]>(...args: any): DBnx | Promise<ResponseType>;
 
     /**
      * Retrieves a single record from the specified table or model based on the provided configuration.
@@ -182,7 +182,7 @@ export class DBnx {
         Config?: FindOneParamsType<Tables>
     ): Promise<ResponseType>;
 
-    public findOne(...args: any): DBnx | Promise<ResponseType>;
+    public findOne<Tables extends string[]>(...args: any): DBnx | Promise<ResponseType>;
 
     /**
      * Updates an existing record in the specified table with the provided properties.
@@ -199,7 +199,7 @@ export class DBnx {
         model: typeof Model,
         Props: UpdateParamsType<Tables>,
     ): Promise<ResponseType>;
-    public update(...args: any): DBnx | Promise<ResponseType>;
+    public update<Tables extends string[]>(...args: any): DBnx | Promise<ResponseType>;
 
 
     /**
