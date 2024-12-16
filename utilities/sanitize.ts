@@ -71,3 +71,42 @@ export function format(query: string, values: any[]): string {
         return escapedValue;
     });
 }
+
+
+export interface MySQLConfig {
+    host: string;
+    user: string;
+    password: string;
+    database: string;
+    port: number;
+    params: Record<string, any>
+}
+
+export function parseMySQLUrl(url: string): MySQLConfig {
+    const regex = /^(mysql:\/\/)([^:]+):([^@]+)@([^:\/]+)(?::(\d+))?\/([^?]+)(?:\?(.*))?$/;
+
+    const match = url.match(regex);
+    if (!match) {
+        throw new Error("Invalid MySQL URL format");
+    }
+    const [, , user, password, host, port, database, queryParams] = match;
+
+    const params: { [key: string]: string } = {};
+
+    if (queryParams) {
+        queryParams.split('&').forEach(param => {
+            const [key, value] = param.split('=');
+            if (key && value) {
+                params[key] = decodeURIComponent(value);
+            }
+        });
+    }
+    return {
+        user,
+        password,
+        host,
+        port: port ? parseInt(port, 10) : 3306, // Default MySQL port is 3306
+        database,
+        params
+    };
+}

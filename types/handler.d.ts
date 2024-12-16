@@ -9,8 +9,10 @@ export class DBnx {
     #dbConfig: ConnectionOptions | PoolOptions | string | null = null;
     #usePool: boolean = false;
 
-    constructor(dbConfig: ConnectionOptions | PoolOptions | string, usePool: boolean = false);
-
+    constructor(dbConfig: ConnectionOptions | PoolOptions | string, usePool?: boolean, logger?: (log: any) => void)
+    constructor(dbConfig: ConnectionOptions | PoolOptions | string, logger?: (log: any) => void)
+    constructor(dbConfig: ConnectionOptions | PoolOptions | string)
+    constructor(...arg: any[]);
     /**
      * Establishes a database connection using either a connection pool or a single connection.
      * @param {function} [props] - Optional callback function for success or error handling.

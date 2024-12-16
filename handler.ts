@@ -1,9 +1,10 @@
-import { createConnection } from "mysql2";
-import mysql, { Connection, ConnectionOptions, Pool, PoolOptions } from 'mysql2/promise';
+import { createConnection, createPool } from "mysql2";
+import { Connection, ConnectionOptions, Pool, PoolOptions } from 'mysql2/promise';
 import { Model } from "./model";
 import { TableOptions } from "./model-define";
 import { destroy, findingQuery, insertInto, update } from "./query";
 import { ColumnOptions, CreateOptionsType, CreateParamsType, DeleteParamsType, FindAllParamsType, FindOneParamsType, ResponseType, UpdateParamsType } from './types';
+import { parseMySQLUrl } from "./utilities";
 
 export class DBnx {
     #pool: Pool | null = null;
@@ -11,10 +12,15 @@ export class DBnx {
     #query: string = "";
     #dbConfig: ConnectionOptions | PoolOptions | string | null = null;
     #usePool: boolean = false;
+    #logger?: (log: any) => void = undefined;
 
-    constructor(dbConfig: ConnectionOptions | PoolOptions | string, usePool: boolean = false) {
-        this.#usePool = usePool;
-        this.#dbConfig = dbConfig;
+    constructor(dbConfig: ConnectionOptions | PoolOptions | string, usePool?: boolean, logger?: (log: any) => void)
+    constructor(dbConfig: ConnectionOptions | PoolOptions | string, logger?: (log: any) => void)
+    constructor(dbConfig: ConnectionOptions | PoolOptions | string)
+    constructor(...arg: any[]) {
+        this.#logger = typeof arg[1] === 'function' ? arg[1] : arg[2];
+        this.#usePool = typeof arg[1] == 'boolean' ? arg[1] : false;
+        this.#dbConfig = arg[0];
     }
 
     /**
@@ -25,16 +31,18 @@ export class DBnx {
     connect(props?: (err?: any, success?: any) => void) {
         try {
             if (this.#usePool) {
-                this.#pool = mysql.createPool(this.#dbConfig as PoolOptions);
+                this.#pool = createPool(this.#dbConfig as PoolOptions).promise();
             }
             else {
                 this.#connection = createConnection(this.#dbConfig as ConnectionOptions).promise()
             }
             if (props) {
+                this.logger_function('✅ Connection has been established successfully.');
                 props(undefined, "Connection has been established successfully.")
             }
         }
         catch (error) {
+            this.logger_function(`❌ Error: ${error}`);
             if (props) {
                 props(error, undefined)
             }
@@ -142,6 +150,7 @@ export class DBnx {
         const { sql, additional, params, responseFn } = this.#argumentExecuteParse(...args)
 
         const query = sql || this.#query;
+        this.logger_function(`🔍 Execute: ${query}`);
 
         if (!query) {
             throw new Error("No query to execute.");
@@ -242,6 +251,8 @@ export class DBnx {
         const { sql, additional, params, responseFn } = this.#argumentExecuteParse(...args)
         const query = sql || this.#query;
 
+        this.logger_function(`📜 Execute: ${query}`);
+
         if (!query) {
             throw new Error("No query to execute.");
         }
@@ -336,6 +347,7 @@ export class DBnx {
             throw new Error("Expected a table name and/or values.");
         }
         this.#query += insertInto(table, values, options);
+        this.logger_function(`🆕 Create into: \`${table}\``);
         return this
     }
     /**
@@ -348,6 +360,7 @@ export class DBnx {
     public findAll<Tables extends string[]>(table: string, Config?: FindAllParamsType<Tables>): DBnx;
     public findAll<Tables extends string[]>(model: typeof Model, Config?: FindAllParamsType<Tables>): Promise<ResponseType>;
     public findAll<Tables extends string[]>(...args: any): DBnx | Promise<ResponseType> {
+
         if (args.length === 0) {
             throw new Error("No arguments provided to 'findAll'. Expected a table name or model.");
         }
@@ -369,6 +382,7 @@ export class DBnx {
             throw new Error("Invalid first argument: must be a table name or a Model class.");
         }
         this.#query += findingQuery<Tables>(table, Config)
+        this.logger_function(`📋 Find all from: \`${table}\``);
         return this
     }
 
@@ -402,6 +416,7 @@ export class DBnx {
             throw new Error("Invalid first argument: must be a table name or a Model class.");
         }
         this.#query += findingQuery<Tables>(table, Config)
+        this.logger_function(`🔎 Find one from: \`${table}\``);
         return this
     }
 
@@ -434,6 +449,7 @@ export class DBnx {
             throw new Error("Invalid first argument: must be a table name or a Model class.");
         }
         this.#query += update<Tables>(table, Props)
+        this.logger_function(`✏️ Update from: \`${table}\``);
         return this
     }
 
@@ -463,22 +479,36 @@ export class DBnx {
             throw new Error("Invalid first argument: must be a table name or a Model class.");
         }
         this.#query += destroy<Tables>(table, Props)
+        this.logger_function(`🗑️ Delete from: \`${table}\``);
         return this;
     }
 
+    logger_function(log: any) {
+        if (this.#logger) {
+            this.#logger(log)
+        }
+    }
     /**
      * Fetch all configurations used in the connection or pool.
      * @returns Object containing configuration details.
      */
     public getConfig(): ConnectionOptions | PoolOptions | null {
+        let option
         if (this.#pool) {
-            return this.#pool.config;
+            option = (this.#pool?.pool.config as any).connectionConfig
         }
         else if (this.#connection) {
-            return (this.#connection as any).config;
+            option = (this.#connection as any).config;  // Return the config of the single connection
         }
-        return null;
+        if (option) {
+            return option
+        }
+        if (typeof this.#dbConfig == 'string') {
+            return parseMySQLUrl(this.#dbConfig);
+        }
+        return this.#dbConfig;
     }
+
 
     /**
    * Sets the SQL query string that will be executed later.
@@ -486,6 +516,7 @@ export class DBnx {
    * @returns {DBnx} - The current instance of DBnx for method chaining.
    */
     public setQuery(query: string) {
+        this.logger_function(`⚙️ Query set: ${query}`);
         this.#query = query;
         return this
     }
@@ -504,11 +535,22 @@ export class DBnx {
    * @returns {Promise<void>} - A promise that resolves when the connection or pool is closed.
    */
     public async close(): Promise<void> {
+        // Check if there's a pool of connections
         if (this.#pool) {
-            await this.#pool.end();
+            // Log that the pool is being closed
+            this.logger_function('⏳ Closing connection pool...');
+            await this.#pool.end();  // Gracefully close the pool
+            this.logger_function('✅ Connection pool closed successfully.');
         }
+        // If there’s a single connection
         else if (this.#connection) {
-            await this.#connection.end();
+            // Log that the connection is being closed
+            this.logger_function('⏳ Closing database connection...');
+            await this.#connection.end();  // Gracefully close the connection
+            this.logger_function('✅ Database connection closed successfully.');
+        } else {
+            // Log if no pool or connection exists
+            this.logger_function('⚠️ No active connection or pool to close.');
         }
     }
 }
