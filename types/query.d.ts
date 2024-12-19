@@ -1,8 +1,8 @@
 //! **********************************  FOR CREATE *********************************
 
 export type CreateParamsType<columns extends any[]> = {
-    [P in columns[number]]?: string | "CURRENT_TIMESTAMP"
-} | Record<string, string | number | 'CURRENT_TIMESTAMP'> |
+    [P in columns[number]]?: string | "CURRENT_TIMESTAMP" | undefined
+} | Record<string, string | number | 'CURRENT_TIMESTAMP' | undefined> |
     {
         [P in columns[number]]?: string | "CURRENT_TIMESTAMP"
     }[]
@@ -97,7 +97,7 @@ export interface FindAllParamsType<Tables extends string[]> {
 //! **********************************  FOR UPDATE *********************************
 export type UpdateParamsType<Tables extends string[]> = {
     values?: {
-        [key: string]: string | number | null | {
+        [key: string]: string | number | null | undefined | {
             case: {
                 when: string;  // The condition in the WHEN clause
                 then: any;     // The value to set in the THEN clause

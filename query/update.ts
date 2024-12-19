@@ -39,13 +39,7 @@ export function update<Tables extends string[]>(table: string, {
             updateInfo += `${updateInfo ? ', ' : ''}${column} = CASE ${caseStatement} ELSE ${escape(value?.default)} END`;
         }
         else {
-            const isString = typeof value === 'string';
-            const isNull = value == null;
-
-            const updateValue = isString ?
-                escape(value?.trim()) :
-                isNull ? "NULL" : value;
-
+            const updateValue = typeof value === 'number' ? value : escape(value).trim()
             updateInfo += `${updateInfo ? ', ' : ''}${column} = ${updateValue}`;
         }
     }
