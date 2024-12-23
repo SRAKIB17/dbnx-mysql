@@ -22,7 +22,7 @@ export function mysql_date(date?: Date | string): string;
  * @param input - The user input to be sanitized.
  * @returns Escaped and safe input for MySQL queries.
  */
-export function sanitize(input: string | number | null): string;
+export function sanitize(input: any): string;
 
 /**
  * Escape special characters in a string to prevent SQL injection.
