@@ -3,7 +3,7 @@
  * @param input - The user input to be sanitized.
  * @returns Escaped and safe input for MySQL queries.
  */
-export function sanitize(input: string | number | null): string {
+export function sanitize(input: any): string {
     return escape(input);
 }
 
