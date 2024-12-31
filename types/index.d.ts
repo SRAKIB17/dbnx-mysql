@@ -8,6 +8,7 @@ export * from "./model";
 export * from "./data types";
 export * from "./query";
 export * from "./engine options";
+export * from "./condition";
 
 export type Attributes = Record<string, ColumnOptions>;
 

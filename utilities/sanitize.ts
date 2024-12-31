@@ -27,6 +27,7 @@ export function escape(val: any): string {
 
     if (typeof val === 'string') {
         return `'${val
+            .replace(/\0/g, '\\0')// Output: Hello (null byte) World
             .replace(/\\/g, '\\\\') // Escapes backslashes
             .replace(/'/g, "\\'")  // Escapes single quotes
             .replace(/"/g, '\\"')  // Escapes double quotes
