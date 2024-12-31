@@ -1,11 +1,12 @@
-
 /**
  * Type representing the possible values that can be used in the filters.
  * 
  * - string | number: Used for simple equality checks.
  * - Array<string | number>: Used for `IN` checks.
- * - { not: Array<string | number> }: Used for `NOT IN` checks.
+ * - { notIn: Array<string | number> }: Used for `NOT IN` checks.
+ * - { in: Array<string | number> }: Used for `IN` checks.
  * - { between: [number, number] }: Used for `BETWEEN` checks.
+ * - { notBetween: [number, number] }: Used for `NOT BETWEEN` checks.
  * - { inRange: [number, number] }: Similar to `BETWEEN` but for range checks.
  * - { $or: FilterValue[] }: Logical OR condition.
  * - { like: string }: Used for `LIKE` operator (pattern matching).
@@ -13,18 +14,33 @@
  * - { isNull: boolean }: Used for checking if a value is NULL or NOT NULL.
  * - { $and: FilterValue[] }: Logical AND condition.
  * - { regexp: string }: Used for `REGEXP` operator (regular expression matching).
+ * - eq: number | string | unknown: Used for equality check (i.e., "=").
+ * - gt: number | string | unknown: Greater than check (i.e., ">").
+ * - lt: number | string | unknown: Less than check (i.e., "<").
+ * - gte: number | string | unknown: Greater than or equal to check (i.e., ">=").
+ * - lte: number | string | unknown: Less than or equal to check (i.e., "<=").
+ * - neq: number | string | unknown: Not equal to check (i.e., "!=").
  */
 type FilterValue = string | number | Array<string | number>
     | {
-        not?: Array<string | number>;           // NOT IN condition
+        notIn?: Array<string | number>;           // NOT IN condition
+        in?: Array<string | number>;           // NOT IN condition
         between?: [number, number];            // BETWEEN condition
+        notBetween?: [number, number];            //NOT BETWEEN condition
         inRange?: [number, number];            // Range check (similar to BETWEEN)
         $or?: FilterValue[];                   // Logical OR condition
         like?: string;                         // LIKE condition for pattern matching
         notLike?: string;                      // NOT LIKE condition for pattern matching
         isNull?: boolean;                      // Check for NULL or NOT NULL
         $and?: FilterValue[];                  // Logical AND condition
-        regexp?: string;                       // REGEXP condition (regex matching)
+        regexp?: string;                       // REGEXP condition (regex matching),
+
+        eq?: number | string | unknown;       // Represents "="
+        gt?: number | string | unknown; // Represents ">"
+        lt?: number | string | unknown;    // Represents "<"
+        gte?: number | string | unknown; // Represents ">="
+        lte?: number | string | unknown;    // Represents "<="
+        neq?: number | string | unknown;    // Represents "!="
     }
 
 /**

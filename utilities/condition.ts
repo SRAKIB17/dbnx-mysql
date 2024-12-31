@@ -83,7 +83,7 @@ SELECT * FROM products WHERE
  */
 export function dbnxCondition(filters: Filters, joinBy: 'AND' | 'OR' = 'AND'): string {
     let conditions: string[] = [];
-    const operatorRegex = /^(<=|>=|!=|<|>|=)/; // Matches all supported operators
+    // const operatorRegex = /^(<=|>=|!=|<|>|=)/; // Matches all supported operators
 
     for (const column in filters) {
         const value = filters[column as keyof Filters];
@@ -100,11 +100,17 @@ export function dbnxCondition(filters: Filters, joinBy: 'AND' | 'OR' = 'AND'): s
             }
             else {
                 //FOr not include
-                if (Array.isArray(value?.not) && value?.not) {
-                    conditions.push(`\`${column}\` NOT IN ${sanitize(value?.not)}`);
+                if (Array.isArray(value?.notIn) && value?.notIn?.length) {
+                    conditions.push(`\`${column}\` NOT IN ${sanitize(value?.notIn)}`);
+                }
+                if (Array.isArray(value?.in) && value?.in?.length) {
+                    conditions.push(`\`${column}\` NOT IN ${sanitize(value?.in)}`);
                 }
                 if (Array.isArray(value?.between) && value?.between?.length == 2) {
-                    conditions.push(`\`${column}\` BETWEEN ${sanitize(value?.between?.[0])} AND ${sanitize(value?.between?.[0])}`);
+                    conditions.push(`\`${column}\` BETWEEN ${sanitize(value?.between?.[0])} AND ${sanitize(value?.between?.[1])}`);
+                }
+                if (Array.isArray(value?.notBetween) && value?.notBetween?.length == 2) {
+                    conditions.push(`\`${column}\` NOT BETWEEN ${sanitize(value?.notBetween?.[0])} AND ${sanitize(value?.notBetween?.[1])}`);
                 }
                 if (Array.isArray(value?.inRange) && value?.inRange?.length == 2) {
                     conditions.push(`\`${column}\` BETWEEN ${sanitize(value?.inRange?.[0])} AND ${sanitize(value?.inRange?.[1])}`);
@@ -124,9 +130,30 @@ export function dbnxCondition(filters: Filters, joinBy: 'AND' | 'OR' = 'AND'): s
                 if ((value.notLike) && typeof value?.notLike == 'string') {
                     conditions.push(`\`${column}\` NOT LIKE ${sanitize(handlePattern(value.notLike, "NOT LIKE"))}`);
                 }
+
                 if ((value.regexp) && typeof value?.regexp == 'string') {
                     conditions.push(`\`${column}\` REGEXP ${sanitize(handlePattern(value.regexp, "REGEXP"))}`);
                 }
+                if ((value.eq)) {
+                    conditions.push(`\`${column}\` = ${sanitize(value?.eq)}`);
+                }
+                if (value.gt) {
+                    conditions.push(`\`${column}\` > ${sanitize(value?.gt)}`);
+                }
+                if (value.lt) {
+                    conditions.push(`\`${column}\` < ${sanitize(value?.lt)}`);
+                }
+                if (value.gte) {
+                    conditions.push(`\`${column}\` >= ${sanitize(value?.gte)}`);
+                }
+
+                if (value.lte) {
+                    conditions.push(`\`${column}\` <= ${sanitize(value?.lte)}`);
+                }
+                if (value.neq) {
+                    conditions.push(`\`${column}\` != ${sanitize(value?.neq)}`);
+                }
+
                 if (value?.isNull != undefined) {
                     if (value.isNull) {
                         conditions.push(`\`${column}\` IS NULL`);
@@ -137,16 +164,16 @@ export function dbnxCondition(filters: Filters, joinBy: 'AND' | 'OR' = 'AND'): s
             }
         }
         else if (typeof value === 'string') {
-            if (typeof value === 'string' && operatorRegex.test(value)) {
-                // Handle custom operators (e.g., >=1000, <500)
-                const operator = value.slice(0, 2).trim(); // e.g., >= or <
-                conditions.push(`\`${column}\` ${operator} ${sanitize(value.slice(2).trim())}`);
-            }
-            else {
-                // Handle '=' condition
-                const sanitizedValue = value.toString().replace(/'/g, "\\'");
-                conditions.push(`\`${column}\` = ${sanitize(sanitizedValue)}`);
-            }
+            // if (operatorRegex.test(value)) {
+            //     // Handle custom operators (e.g., >=1000, <500)
+            //     const operator = value.slice(0, 2).trim(); // e.g., >= or <
+            //     conditions.push(`\`${column}\` ${operator} ${sanitize(value.slice(2).trim())}`);
+            // }
+            // else {
+            // Handle '=' condition
+            // const sanitizedValue = value.toString().replace(/'/g, "\\'");
+            conditions.push(`\`${column}\` = ${sanitize(value)}`);
+            // }
         }
         // conditions.push
         // conditions += conditions ? ` ${joinBy || "AND"} ${condition}` : condition
