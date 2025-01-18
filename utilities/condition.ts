@@ -12,7 +12,7 @@ import { sanitize } from "./sanitize";
 function handlePattern(value: string, operator: "REGEXP" | "LIKE" | "NOT LIKE"): string {
     const escapeRegexp = (str: string): string => {
         // Escape special characters for REGEXP
-        return str.replace(/([.*+?^=!:${}()|\[\]\/\\])/g, '\\$1');
+        return `'${str.replace(/([.*+?^=!:${}()|\[\]\/\\])/g, '\\$1')}'`;
     };
 
     switch (operator) {
@@ -22,11 +22,10 @@ function handlePattern(value: string, operator: "REGEXP" | "LIKE" | "NOT LIKE"):
 
         case "NOT LIKE":
         case "LIKE":
-            // For LIKE, return the string as is, it will be handled by SQL
-            return value;
+            return sanitize(value);
 
         default:
-            return value;
+            return sanitize(value);
     }
 }
 
@@ -124,15 +123,15 @@ export function dbnxCondition(filters: Filters, joinBy: 'AND' | 'OR' = 'AND'): s
                     conditions.push(`(${orConditions.join(" AND ")})`);
                 }
                 if ((value.like) && typeof value?.like == 'string') {
-                    conditions.push(`\`${column}\` LIKE ${sanitize(handlePattern(value.like, "LIKE"))}`);
+                    conditions.push(`\`${column}\` LIKE ${handlePattern(value.like, "LIKE")}`);
                 }
 
                 if ((value.notLike) && typeof value?.notLike == 'string') {
-                    conditions.push(`\`${column}\` NOT LIKE ${sanitize(handlePattern(value.notLike, "NOT LIKE"))}`);
+                    conditions.push(`\`${column}\` NOT LIKE ${handlePattern(value.notLike, "NOT LIKE")}`);
                 }
 
                 if ((value.regexp) && typeof value?.regexp == 'string') {
-                    conditions.push(`\`${column}\` REGEXP ${sanitize(handlePattern(value.regexp, "REGEXP"))}`);
+                    conditions.push(`\`${column}\` REGEXP ${handlePattern(value.regexp, "REGEXP")}`);
                 }
                 if ((value.eq)) {
                     conditions.push(`\`${column}\` = ${sanitize(value?.eq)}`);
