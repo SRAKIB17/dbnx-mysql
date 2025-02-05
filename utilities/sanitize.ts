@@ -26,17 +26,22 @@ export function escape(val: any): string {
     }
 
     if (typeof val === 'string') {
-        return `'${val
-            .replace(/\0/g, '\\0')// Output: Hello (null byte) World
-            .replace(/\\/g, '\\\\') // Escapes backslashes
-            .replace(/'/g, "\\'")  // Escapes single quotes
-            .replace(/"/g, '\\"')  // Escapes double quotes
-            .replace(/\n/g, '\\n') // Escapes newlines
-            .replace(/\t/g, '\t')// Escapes tabs
-            .replace(/\r/g, '\\r') // Escapes carriage returns
-            .replace(/\f/g, "") // Escape form feed
-            }'`;
-
+        // Escape special characters
+        return `'${val.replace(/[\0\x08\x09\x1a\n\r"'\\\%]/g, (char) => {
+            switch (char) {
+                case '\0': return '\\0'; // Null character
+                case '\x08': return '\\b'; // Backspace
+                case '\x09': return '\\t'; // Tab
+                case '\x1a': return '\\z'; // Substitute
+                case '\n': return '\\n'; // Newline
+                case '\r': return '\\r'; // Carriage return
+                case '"': return '\\"'; // Double quote
+                case "'": return "\\'"; // Single quote
+                case '\\': return '\\\\'; // Backslash
+                case '%': return '\\%'; // Percent sign (used in LIKE queries)
+                default: return char; // No escaping needed
+            }
+        })}'`;
     }
 
     if (typeof val === 'object') {

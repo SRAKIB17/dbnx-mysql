@@ -22,7 +22,20 @@ function handlePattern(value: string, operator: "REGEXP" | "LIKE" | "NOT LIKE"):
 
         case "NOT LIKE":
         case "LIKE":
-            return sanitize(value);
+            return `'${value.replace(/[\0\x08\x09\x1a\n\r"'\\]/g, (char) => {
+                switch (char) {
+                    case '\0': return '\\0'; // Null character
+                    case '\x08': return '\\b'; // Backspace
+                    case '\x09': return '\\t'; // Tab
+                    case '\x1a': return '\\z'; // Substitute
+                    case '\n': return '\\n'; // Newline
+                    case '\r': return '\\r'; // Carriage return
+                    case '"': return '\\"'; // Double quote
+                    case "'": return "\\'"; // Single quote
+                    case '\\': return '\\\\'; // Backslash
+                    default: return char; // No escaping needed
+                }
+            })}'`;
 
         default:
             return sanitize(value);
