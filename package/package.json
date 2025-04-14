@@ -1,0 +1,53 @@
+{
+  "name": "@dbnx/mysql",
+  "version": "1.0.26",
+  "description": "A powerful and enhanced ORM library for MySQL, offering query execution, model creation, and full relational management.",
+  "main": "cjs/index.js",
+  "module": "index.js",
+  "types": "index.d.ts",
+  "typings": "index.d.ts",
+  "scripts": {
+    "build": "tsc"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/SRAKIB17/dbnx-mysql.git"
+  },
+  "bugs": {
+    "url": "https://github.com/SRAKIB17/dbnx-mysql/issues"
+  },
+  "exports": {
+    ".": {
+      "import": "./index.js",
+      "require": "./cjs/index.js",
+      "types": "./index.d.ts",
+      "default": "./index.js"
+    }
+  },
+  "homepage": "https://github.com/SRAKIB17/dbnx-mysql",
+  "files": [
+    "cjs/",
+    "core/",
+    "query/",
+    "types/",
+    "utils/",
+    "index.js",
+    "index.d.ts"
+  ],
+  "keywords": [
+    "mysql",
+    "orm",
+    "database",
+    "query-builder",
+    "relational",
+    "dbnx",
+    "modeling",
+    "data-layer",
+    "enhanced",
+    "optimized",
+    "mysql-orm",
+    "relational-mapper"
+  ],
+  "author": "SRAKIB17",
+  "license": "MIT"
+}
