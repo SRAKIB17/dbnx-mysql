@@ -7,6 +7,14 @@
 
 A lightweight and flexible TypeScript-based database query and manipulation library. Designed to simplify database interactions with a clean and intuitive API.
 
+## Pre-require
+
+Install **mysql2**
+
+```bash
+npm i mysql2
+```
+
 ---
 
 ## **Features**
