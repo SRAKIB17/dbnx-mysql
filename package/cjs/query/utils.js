@@ -101,7 +101,7 @@ function parseJoins(joins) {
             }
             const [[table1, column1], [table2, column2]] = tableEntries;
             let primary = isTableInJoin(relation, table1) ? table2 : table1;
-            return (relation += ` JOIN ${primary} ON ${table2}.${column2} = ${table1}.${column1}`);
+            return (relation += ` JOIN ${primary} ON ${table2}.${column2} ${operator} ${table1}.${column1}`);
         }
     });
     return relation;
