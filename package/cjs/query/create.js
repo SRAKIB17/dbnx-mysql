@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.insert = insert;
-const utils_1 = require("../utils");
+const index_js_1 = require("../utils/index.js");
 function insert(table, values, { onDuplicateUpdateFields = [], uniqueColumn }) {
     if (!values) {
         throw new Error("❌ Insert data array is empty");
@@ -17,7 +17,7 @@ function insert(table, values, { onDuplicateUpdateFields = [], uniqueColumn }) {
             return "NULL";
         }
         if (typeof value === "string") {
-            return (0, utils_1.escape)(value);
+            return (0, index_js_1.escape)(value);
         }
         return value;
     })

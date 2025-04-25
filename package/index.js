@@ -1,4 +1,4 @@
-export * from "./utils";
-export * from "./core";
-export * from "./query";
-export const version = "1.0.28";
+export * from "./utils/index.js";
+export * from "./core/index.js";
+export * from "./query/index.js";
+export const version = "1.0.29";

@@ -1,5 +1,5 @@
-export * from "./create";
-export * from "./find";
-export * from "./update";
-export * from "./delete";
-export type { JoinsType } from "./utils";
+export * from "./create.js";
+export * from "./find.js";
+export * from "./update.js";
+export * from "./delete.js";
+export type { JoinsType } from "./utils.js";

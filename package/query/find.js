@@ -1,4 +1,4 @@
-import { parseColumns, parseGroupBy, parseJoins, parseSort, } from "./utils";
+import { parseColumns, parseGroupBy, parseJoins, parseSort, } from "./utils.js";
 let aggregates_alias = {
     MIN: "minimum",
     MAX: "maximum",

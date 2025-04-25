@@ -1,4 +1,4 @@
-import { sanitize } from "./sanitize";
+import { sanitize } from "./sanitize.js";
 function handlePattern(value, operator) {
     const escapeRegexp = (str) => {
         return `'${str.replace(/([.*+?^=!:${}()|\[\]\/\\])/g, "\\$1")}'`;

@@ -1,7 +1,7 @@
-import { DBnx } from "./handler";
-import { Attributes, ModelDefine, TableOptions } from "./model-define";
 import { CreateOptionsType, CreateParamsType, DeleteParamsType, FindAllParamsType, FindOneParamsType, UpdateParamsType } from "../query";
-import { ResponseType } from "../types";
+import { ResponseType } from "../types/index.js";
+import { DBnxHandler } from "./handler.js";
+import { Attributes, ModelDefine, TableOptions } from "./model-define.js";
 type Hooks = Record<string, Function[]>;
 type ColumnMetadata = {
     field: string;
@@ -15,8 +15,6 @@ type ColumnMetadata = {
 export declare class Model extends ModelDefine {
     static hooks: Hooks;
     constructor(attributes: any);
-    static addHook(hookName: string, fn: Function): void;
-    static runHooks(hookName: string, ...args: any[]): Promise<void>;
     /**
      * Initializes a model with schema and database information.
      * @param model - Model name in the format `db_name.table_name` or just `table_name`.
@@ -25,7 +23,7 @@ export declare class Model extends ModelDefine {
      * @param options - Additional table options such as engine, collation, etc.
      * @returns The current `Model` instance.
      */
-    static init(model: string, attributes: Attributes, instance: DBnx, options?: TableOptions): typeof Model;
+    static init(model: string, attributes: Attributes, instance: DBnxHandler, options?: TableOptions): typeof Model;
     /**
      * Creates a new record in the database.
      * @param values - Data to insert into the table.

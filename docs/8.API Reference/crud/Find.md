@@ -1,247 +1,262 @@
 
+# `@dbnx/mysql` API Reference: findAll, findOne, and Related Types
+
+This API reference details the `findAll` and `findOne` methods, along with their supporting types (`JoinsType`, `SortType`, `OperatorType`, `FindOneParamsType`, and `FindAllParamsType`). These methods enable flexible querying of MySQL databases, supporting filtering, sorting, pagination, joins, subqueries, aggregates, and recursive CTEs.
+
 ---
 
-This API offers methods to query and retrieve records from the database. You can find a single record or multiple records with advanced filtering, sorting, and aggregation capabilities.
+## 1. findAll Method
 
----
-
-### **1. `findAll` Method**
-
-#### **Method Signature**
+### Method Signature
 
 ```typescript
 public findAll<tables extends string[]>(table: string, config?: FindAllParamsType<tables>): MySQLHandler;
 public findAll<tables extends string[]>(model: typeof Model, config?: FindAllParamsType<tables>): Promise<ResponseType>;
 ```
 
-#### **Parameters:**
+### Parameters
 
-- **`table`** (`string`):
-  - The name of the table to query.
-  - Alternatively, you can pass a `Model` class.
-  
-- **`config`** (`FindAllParamsType<tables>`):
-  - Optional configuration for querying the table.
-  - **Possible options:**
-    - `distinct`: If true, returns distinct rows.
-    - `sort`: Sorting configuration, defined using `SortType`.
-    - `limitSkip`: Pagination options (`limit` and `skip` values).
-    - `columns`: Columns to select (can be specified per table).
-    - `groupBy`: Columns to group by.
-    - `aggregates`: Array of aggregate functions (e.g., `MIN`, `MAX`).
-    - `where`: `WHERE` clause condition.
-    - `having`: `HAVING` clause condition.
-    - `subQueries`: List of subqueries.
-    - `joins`: Table joins, defined using `JoinsType`.
-    - `recursiveCTE`: Recursive common table expressions.
+| Parameter | Type                     | Description                                                                 | Required |
+|-----------|--------------------------|-----------------------------------------------------------------------------|----------|
+| `table`   | `string`                 | Name of the table to query (e.g., `'users'`).                               | Yes (if not using model) |
+| `model`   | `typeof Model`           | Model class for ORM-based queries (e.g., `User`).                           | Yes (if not using table) |
+| `config`  | `FindAllParamsType`      | Configuration object for customizing the query (e.g., filters, sorting).    | No       |
 
-#### **Returns:**
+### Returns
 
-- **`MySQLHandler`**: If a `table` name is provided, the query handler is returned to build and execute the query.
-- **`Promise<ResponseType>`**: If a `Model` class is provided, the query is executed, and a `Promise` with the response is returned.
+- **Table Name**: Returns a `MySQLHandler` instance for query chaining (e.g., with `.build()` or `.execute()`).
+- **Model**: Returns a `Promise<ResponseType>` containing the query results.
 
-#### **Example:**
+### Example
 
 ```typescript
-const results = await findAll('users', {
+const results = await db.findAll('users', {
+  sort: { name: 1 },
+  limitSkip: { limit: 10, skip: 0 },
+  columns: ['name', 'email'],
+  where: 'status = "active"',
+}).execute();
+console.log(results); // Logs fetched records
+// SQL: SELECT name, email FROM users WHERE status = 'active' ORDER BY name ASC LIMIT 10 OFFSET 0;
+```
+
+**Using a Model**:
+
+```typescript
+const results = await User.findAll({
   sort: { name: 1 },
   limitSkip: { limit: 10, skip: 0 },
   columns: ['name', 'email'],
   where: 'status = "active"',
 });
+console.log(results); // Logs fetched records
 ```
 
 ---
 
-### **2. `findOne` Method**
+## 2. findOne Method
 
-#### **Method Signature**
+### Method Signature
 
 ```typescript
 public findOne<tables extends string[]>(table: string, config?: FindOneParamsType<tables>): MySQLHandler;
 public findOne<tables extends string[]>(model: typeof Model, config?: FindOneParamsType<tables>): Promise<ResponseType>;
 ```
 
-#### **Parameters:**
+### Parameters
 
-- **`table`** (`string`):
-  - The name of the table to query.
-  - Alternatively, you can pass a `Model` class.
-  
-- **`config`** (`FindOneParamsType<tables>`):
-  - Optional configuration for querying the table.
-  - **Possible options:**
-    - `distinct`: If true, returns distinct rows.
-    - `sort`: Sorting configuration, defined using `SortType`.
-    - `columns`: Columns to select (can be specified per table).
-    - `groupBy`: Columns to group by.
-    - `aggregates`: Array of aggregate functions.
-    - `where`: `WHERE` clause condition.
-    - `having`: `HAVING` clause condition.
-    - `subQueries`: List of subqueries.
-    - `joins`: Table joins, defined using `JoinsType`.
-    - `recursiveCTE`: Recursive common table expressions.
+| Parameter | Type                     | Description                                                                 | Required |
+|-----------|--------------------------|-----------------------------------------------------------------------------|----------|
+| `table`   | `string`                 | Name of the table to query (e.g., `'users'`).                               | Yes (if not using model) |
+| `model`   | `typeof Model`           | Model class for ORM-based queries (e.g., `User`).                           | Yes (if not using table) |
+| `config`  | `FindOneParamsType`      | Configuration object for customizing the query (e.g., filters, columns).    | No       |
 
-#### **Returns:**
+### Returns
 
-- **`MySQLHandler`**: If a `table` name is provided, the query handler is returned to build and execute the query.
-- **`Promise<ResponseType>`**: If a `Model` class is provided, the query is executed, and a `Promise` with the response is returned.
+- **Table Name**: Returns a `MySQLHandler` instance for query chaining.
+- **Model**: Returns a `Promise<ResponseType>` containing the single record.
 
-#### **Example:**
+### Example
 
 ```typescript
-const user = await findOne('users', {
+const user = await db.findOne('users', {
+  where: 'id = 1',
+  columns: ['id', 'name', 'email'],
+}).execute();
+console.log(user); // Logs single record
+// SQL: SELECT id, name, email FROM users WHERE id = 1 LIMIT 1;
+```
+
+**Using a Model**:
+
+```typescript
+const user = await User.findOne({
   where: 'id = 1',
   columns: ['id', 'name', 'email'],
 });
+console.log(user); // Logs single record
 ```
 
 ---
 
-### **3. `JoinsType`**
+## 3. JoinsType
 
-Defines the different types of joins that can be used in the query.
+### Definition
 
 ```typescript
 export type JoinsType<Tables extends string[]> = Array<{
-    operator?: OperatorType | string,
-    type?: 'JOIN' | 'INNER JOIN' | 'OUTER JOIN' | 'CROSS JOIN' | 'RIGHT JOIN' | 'LEFT JOIN';
+  operator?: OperatorType | string;
+  type?: 'JOIN' | 'INNER JOIN' | 'OUTER JOIN' | 'CROSS JOIN' | 'RIGHT JOIN' | 'LEFT JOIN';
 } | {
-    on?: string, table?: string
+  on?: string;
+  table?: string;
 } | {
-    [key: string]: string
+  [key: string]: string;
 } | {
-    [P in Tables[number]]?: string
-}>
+  [P in Tables[number]]?: string;
+}>;
 ```
 
-#### **Usage:**
+### Usage
 
-You can define how to join tables, specify the join type (e.g., `LEFT JOIN`), and use operators (e.g., `=` or `IN`).
-
-#### **Example:**
+Specifies join conditions for multi-table queries, including join type and operator.
 
 ```typescript
-const results = await findAll('users', {
+const results = await db.findAll('users', {
   joins: [
     { type: 'INNER JOIN', table: 'profiles', on: 'users.id = profiles.user_id' },
   ],
-});
+  where: 'users.status = "active"',
+}).execute();
+// SQL: SELECT * FROM users INNER JOIN profiles ON users.id = profiles.user_id WHERE users.status = 'active';
 ```
 
 ---
 
-### **4. `SortType`**
+## 4. SortType
 
-Defines how the results should be sorted.
+### Definition
 
 ```typescript
-export type SortType<Tables extends string[]> = { [P in Tables[number]]?: Record<string, 1 | -1> } | Record<string, 1 | -1> | string;
+export type SortType<Tables extends string[]> = 
+  | { [P in Tables[number]]?: Record<string, 1 | -1> }
+  | Record<string, 1 | -1>
+  | string;
 ```
 
-#### **Usage:**
+### Usage
 
-You can sort the results based on one or more columns.
-
-- `1` indicates ascending order.
-- `-1` indicates descending order.
-
-#### **Example:**
+Defines sorting criteria for query results. Use `1` for ascending and `-1` for descending.
 
 ```typescript
-const sortedResults = await findAll('products', {
-  sort: { price: -1 }, // Sort by price in descending order
-});
+const sortedResults = await db.findAll('products', {
+  sort: { price: -1 },
+}).execute();
+// SQL: SELECT * FROM products ORDER BY price DESC;
 ```
 
 ---
 
-### **5. `OperatorType`**
+## 5. OperatorType
 
-Defines the different operators that can be used in the query conditions.
+### Definition
 
 ```typescript
 export type OperatorType =
-    | '='    // Equality
-    | '!='   // Not equal
-    | '<>'   // Not equal (alternate syntax)
-    | '<'    // Less than
-    | '>'    // Greater than
-    | '<='   // Less than or equal
-    | '>='   // Greater than or equal
-    | 'LIKE' // Pattern matching
-    | 'IN'   // Check if value exists in a set
-    | 'BETWEEN'; // Range condition
+  | '='
+  | '!='
+  | '<>'
+  | '<'
+  | '>'
+  | '<='
+  | '>='
+  | 'LIKE'
+  | 'IN'
+  | 'BETWEEN';
 ```
 
-#### **Usage:**
+### Usage
 
-You can use these operators in the `where` condition to define filters on the data.
-
-#### **Example:**
+Used in `where` clauses to define conditions.
 
 ```typescript
-const results = await findAll('orders', {
+const results = await db.findAll('orders', {
   where: 'totalAmount > 100 AND status = "completed"',
-  operator: 'IN',
-});
+}).execute();
+// SQL: SELECT * FROM orders WHERE totalAmount > 100 AND status = 'completed';
 ```
 
 ---
 
-### **6. `FindOneParamsType` Interface**
+## 6. FindOneParamsType
 
-The configuration object for a single query to find one record.
+### Definition
 
 ```typescript
 export interface FindOneParamsType<Tables extends string[]> {
-    distinct?: boolean;
-    sort?: SortType<Tables>;
-    columns?: { [P in Tables[number]]?: string[] } | string | string[];
-    groupBy?: { [P in Tables[number]]?: string[] } | string | string[];
-    aggregates?: Array<{ [K in keyof Record<'MIN' | 'MAX' | 'SUM' | 'COUNT' | 'AVG', string>]?: string }>;
-    where?: string;
-    having?: string;
-    subQueries?: { query: string, as?: string }[];
-    joins?: JoinsType<Tables>;
-    recursiveCTE?: { baseCase: string, recursiveCase: string, alias: string };
+  distinct?: boolean;
+  sort?: SortType<Tables>;
+  columns?: { [P in Tables[number]]?: string[] } | string | string[];
+  groupBy?: { [P in Tables[number]]?: string[] } | string | string[];
+  aggregates?: Array<{ [K in keyof Record<'MIN' | 'MAX' | 'SUM' | 'COUNT' | 'AVG', string>]?: string }>;
+  where?: string;
+  having?: string;
+  subQueries?: { query: string; as?: string }[];
+  joins?: JoinsType<Tables>;
+  recursiveCTE?: { baseCase: string; recursiveCase: string; alias: string };
 }
 ```
 
-#### **Usage:**
+### Usage
 
-This is used to pass query options for the `findOne` operation. You can filter data, sort, group, and more.
+Configures the `findOne` query with filters, sorting, and other options.
+
+```typescript
+const user = await db.findOne('users', {
+  where: 'id = 1',
+  columns: ['id', 'name'],
+  joins: [{ type: 'LEFT JOIN', table: 'profiles', on: 'users.id = profiles.user_id' }],
+}).execute();
+// SQL: SELECT users.id, users.name FROM users LEFT JOIN profiles ON users.id = profiles.user_id WHERE id = 1 LIMIT 1;
+```
 
 ---
 
-### **7. `FindAllParamsType` Interface**
+## 7. FindAllParamsType
 
-The configuration object for a query to find multiple records.
+### Definition
 
 ```typescript
 export interface FindAllParamsType<Tables extends string[]> {
-    distinct?: boolean;
-    sort?: SortType<Tables>;
-    limitSkip?: { limit?: number; skip?: number };
-    columns?: { [P in Tables[number]]?: string[] } | string | string[];
-    groupBy?: { [P in Tables[number]]?: string[] } | string | string[];
-    aggregates?: Array<{ [K in keyof Record<'MIN' | 'MAX' | 'SUM' | 'COUNT' | 'AVG', string>]?: string }>;
-    where?: string;
-    having?: string;
-    subQueries?: { query: string, as?: string }[];
-    joins?: JoinsType<Tables>;
-    recursiveCTE?: { baseCase: string, recursiveCase: string, alias: string };
+  distinct?: boolean;
+  sort?: SortType<Tables>;
+  limitSkip?: { limit?: number; skip?: number };
+  columns?: { [P in Tables[number]]?: string[] } | string | string[];
+  groupBy?: { [P in Tables[number]]?: string[] } | string | string[];
+  aggregates?: Array<{ [K in keyof Record<'MIN' | 'MAX' | 'SUM' | 'COUNT' | 'AVG', string>]?: string }>;
+  where?: string;
+  having?: string;
+  subQueries?: { query: string; as?: string }[];
+  joins?: JoinsType<Tables>;
+  recursiveCTE?: { baseCase: string; recursiveCase: string; alias: string };
 }
 ```
 
-#### **Usage:**
+### Usage
 
-This is used to pass query options for the `findAll` operation. You can control the results using filtering, sorting, pagination, and more.
+Configures the `findAll` query with pagination, filtering, and other options.
 
----
-
-### **Conclusion**
-
-With the `find` API, you can easily query the database to fetch single or multiple records, with flexible configurations for sorting, filtering, grouping, and joining tables. This API is highly customizable to suit various database query requirements, giving you full control over how the data is retrieved.
+```typescript
+const results = await db.findAll('users', {
+  limitSkip: { limit: 5, skip: 10 },
+  where: 'status = "active"',
+  columns: ['id', 'name'],
+  sort: { name: 1 },
+  aggregates: [{ COUNT: 'id', alias: 'user_count' }],
+  groupBy: ['status'],
+  having: 'COUNT(id) > 2',
+}).execute();
+// SQL: SELECT users.id, users.name, COUNT(id) AS user_count FROM users WHERE status = 'active' GROUP BY status HAVING COUNT(id) > 2 ORDER BY name ASC LIMIT 5 OFFSET 10;
+```
 
 ---

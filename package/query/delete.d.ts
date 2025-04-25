@@ -1,5 +1,5 @@
-import { SortType } from "./find";
-import { JoinsType } from "./utils";
+import { SortType } from "./find.js";
+import { JoinsType } from "./utils.js";
 /**
  * Type for delete operation parameters.
  *

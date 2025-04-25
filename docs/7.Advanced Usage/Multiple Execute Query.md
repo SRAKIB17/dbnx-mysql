@@ -1,168 +1,179 @@
 
----
+# `@dbnx/mysql` executeMultiple() Method
 
-## **DBnx Multiple Execute Query Example with `executeQuery()`**
-
-This documentation provides the step-by-step process of executing multiple database queries using the `DBnx` library. The following methods (`update`, `findAll`, `create`, `delete`) are chained together to execute in a single sequence.
+The `executeMultiple()` method in `@dbnx/mysql` enables the execution of multiple database queries in sequence within a single transaction. This method supports chaining operations like `update`, `findAll`, `create`, `findOne`, and `delete`, providing a streamlined way to perform complex database operations.
 
 ---
 
-### **1. Setup `database.js` (Database Connection Class)**
+## 1. Overview
 
-The `DBnx` instance is initialized in this file, establishing the connection with MySQL.
+The `executeMultiple()` method allows developers to chain multiple database operations (e.g., updates, inserts, queries, and deletions) and execute them sequentially in a single call. This approach ensures efficient query execution and simplifies transaction management, with built-in error handling and connection cleanup.
 
-#### **Code:**
+---
+
+## 2. Setup Database Connection
+
+The `DBnx` instance is initialized to establish a connection to the MySQL database.
+
+### Code
 
 ```javascript
 // database.js
-import { DBnx } from "@dbnx/mysql";
+import { DBnx } from '@dbnx/mysql';
 
-// Create a new DBnx instance to handle database connection.
-export const db = new DBnx(
-    {
-        host: 'localhost',        // Database host
-        user: 'root',             // Database username
-        password: '11224455',     // Database password
-        database: 'world',        // Database name
-        waitForConnections: true, // Allow the pool to wait for a connection
-        multipleStatements: true, // Allow multiple SQL statements in one query
-        connectionLimit: 10,      // Max number of connections in the pool
-        queueLimit: 0,            // Unlimited queue size
-    },
-    // true // Enable connection pooling
-);
-
-// Connect to the database
-db.connect()
+// Initialize DBnx instance
+export const db = new DBnx({
+  host: 'localhost',
+  user: 'root',
+  password: '11224455',
+  database: 'world',
+  waitForConnections: true,
+  multipleStatements: true,
+  connectionLimit: 10,
+  queueLimit: 0,
+}).connect();
 ```
+
+### Parameters
+
+| Parameter              | Type      | Description                                                                 |
+|------------------------|-----------|-----------------------------------------------------------------------------|
+| `host`                 | `string`  | MySQL server hostname or IP address.                                        |
+| `user`                 | `string`  | MySQL username.                                                             |
+| `password`             | `string`  | MySQL password.                                                             |
+| `database`             | `string`  | Database name.                                                              |
+| `waitForConnections`   | `boolean` | Wait for connections when the pool is full.                                 |
+| `multipleStatements`   | `boolean` | Allow multiple SQL statements in a single query.                            |
+| `connectionLimit`      | `number`  | Maximum number of connections in the pool.                                  |
+| `queueLimit`           | `number`  | Maximum number of queued connection requests (0 = no limit).                |
 
 ---
 
-### **2. Multiple Queries with `executeQuery()`**
+## 3. Using executeMultiple()
 
-In this example, we'll execute the following queries sequentially using the `executeQuery()` method:
+The `executeMultiple()` method executes a sequence of chained queries, such as updating records, retrieving data, inserting new records, and deleting records.
 
-1. **Update** a product's title.
-2. **Find all** products.
-3. **Create** a new product.
-4. **Find one** specific product.
-5. **Delete** a product.
-
-#### **Code:**
+### Example Code
 
 ```javascript
 // executeQueries.js
 import { db } from './database.js';
 
 async function executeMultipleQueries() {
-    try {
-        // Begin executing multiple queries
-        const result = await db
-            .update('product', {
-                values: {
-                    title: 'SRAKIB brand', // New title
-                },
-                where: 'product_id = 1', // Condition for the update
-            })
-            .findAll('product') // Retrieve all products
-            .create('product', {
-                title: 'test', // New product to be created
-            })
-            .findOne('product', {
-                where: 'product_id = 1', // Find one product with product_id = 1
-            })
-            .delete('product', {
-                where: 'product_id = 2', // Delete product with product_id = 2
-            })
-            .executeQuery(); // Execute all queries in sequence
+  try {
+    const result = await db
+      .update('product', {
+        values: { title: 'SRAKIB brand' },
+        where: 'product_id = 1',
+      })
+      .findAll('product')
+      .create('product', {
+        title: 'test',
+      })
+      .findOne('product', {
+        where: 'product_id = 1',
+      })
+      .delete('product', {
+        where: 'product_id = 2',
+      })
+      .executeMultiple();
 
-        console.log('Multiple queries executed successfully:', result);
-    } catch (error) {
-        console.error('Error executing multiple queries:', error);
-    } finally {
-        await db.close(); // Close the database connection after execution
-    }
+    console.log('Multiple queries executed successfully:', result);
+  } catch (error) {
+    console.error('Error executing multiple queries:', error);
+  } finally {
+    await db.close(); // Close the database connection
+  }
 }
 
-// Call the function to execute the queries
 executeMultipleQueries();
 ```
 
 ---
 
-### **3. Breakdown of Methods**
+## 4. Query Methods Breakdown
 
-Here's an explanation of the different query methods used in the example:
+### update
 
-#### **`update(table, { values, where })`**
+Updates existing records in a table.
 
-- **Purpose**: Updates existing records in the specified table.
+- **Signature**: `update(table: string, params: UpdateParamsType): DBnx`
 - **Parameters**:
-  - **`table`**: Name of the table (e.g., `'product'`).
-  - **`values`**: An object containing the column-value pairs to update.
-  - **`where`**: The condition to match the records that need to be updated.
+  - `table`: Table name (e.g., `'product'`).
+  - `params.values`: Object with column-value pairs to update.
+  - `params.where`: Condition for selecting records.
 
-#### **`findAll(table)`**
+### findAll
 
-- **Purpose**: Retrieves all records from the specified table.
+Retrieves all records from a table.
+
+- **Signature**: `findAll(table: string, config?: FindAllParamsType): DBnx`
 - **Parameters**:
-  - **`table`**: Name of the table (e.g., `'product'`).
+  - `table`: Table name (e.g., `'product'`).
+  - `config`: Optional query configuration (e.g., filters, sorting).
 
-#### **`create(table, data)`**
+### create
 
-- **Purpose**: Inserts a new record into the specified table.
+Inserts a new record into a table.
+
+- **Signature**: `create(table: string, values: CreateParamsType): DBnx`
 - **Parameters**:
-  - **`table`**: Name of the table (e.g., `'product'`).
-  - **`data`**: An object containing the column-value pairs to insert.
+  - `table`: Table name (e.g., `'product'`).
+  - `values`: Object with column-value pairs to insert.
 
-#### **`findOne(table, { where })`**
+### findOne
 
-- **Purpose**: Retrieves a single record from the specified table that matches the given condition.
+Retrieves a single record from a table.
+
+- **Signature**: `findOne(table: string, config?: FindOneParamsType): DBnx`
 - **Parameters**:
-  - **`table`**: Name of the table (e.g., `'product'`).
-  - **`where`**: The condition to match the record (e.g., `'product_id = 1'`).
+  - `table`: Table name (e.g., `'product'`).
+  - `config.where`: Condition for selecting the record.
 
-#### **`delete(table, { where })`**
+### delete
 
-- **Purpose**: Deletes a record from the specified table based on the condition.
+Deletes records from a table.
+
+- **Signature**: `delete(table: string, params: DeleteParamsType): DBnx`
 - **Parameters**:
-  - **`table`**: Name of the table (e.g., `'product'`).
-  - **`where`**: The condition to match the record to delete.
+  - `table`: Table name (e.g., `'product'`).
+  - `params.where`: Condition for selecting records to delete.
 
-#### **`executeQuery()`**
+### executeMultiple
 
-- **Purpose**: Executes all the queued queries in sequence.
-- **Returns**: The result of the queries once executed.
+Executes all queued queries in sequence.
+
+- **Signature**: `executeMultiple(): Promise<ResponseType[]>`
+- **Returns**: An array of results from each query.
 
 ---
 
-### **4. Handling Errors**
+## 5. Error Handling
 
-Make sure to handle errors properly by wrapping the entire process in a `try...catch` block. This will catch any exceptions that occur during the execution of the queries.
+Wrap the query chain in a `try...catch` block to handle errors gracefully.
 
-#### **Error Handling Example:**
+### Example
 
 ```javascript
 try {
-    const result = await db
-        .update('product', { values: { title: 'SRAKIB brand' }, where: 'product_id = 1' })
-        .findAll('product')
-        .create('product', { title: 'test' })
-        .findOne('product', { where: 'product_id = 1' })
-        .delete('product', { where: 'product_id = 2' })
-        .executeQuery();
-    
-    console.log(result);
+  const result = await db
+    .update('product', { values: { title: 'SRAKIB brand' }, where: 'product_id = 1' })
+    .findAll('product')
+    .create('product', { title: 'test' })
+    .findOne('product', { where: 'product_id = 1' })
+    .delete('product', { where: 'product_id = 2' })
+    .executeMultiple();
+  console.log('Results:', result);
 } catch (error) {
-    console.error('Error executing query chain:', error);
+  console.error('Error executing query chain:', error);
 }
 ```
 
 ---
 
-### **5. Closing the Connection**
+## 6. Closing the Connection
 
-It's important to close the database connection once all queries are executed to free up resources.
+Always close the database connection after executing queries to free up resources.
 
 ```javascript
 await db.close();
@@ -170,13 +181,37 @@ await db.close();
 
 ---
 
-### **6. Example Output**
+## 7. Example Output
 
-Once the queries are executed successfully, you should see an output similar to this:
+Upon successful execution, the output will resemble:
 
 ```plaintext
-Database connected successfully
-Multiple queries executed successfully: [/* Array of results from each query */]
+Multiple queries executed successfully: [
+  { /* Update result */ },
+  { /* FindAll result */ },
+  { /* Create result */ },
+  { /* FindOne result */ },
+  { /* Delete result */ }
+]
 ```
+
+---
+
+## 8. Best Practices
+
+1. **Use Transactions for Consistency**:
+   - Ensure all queries in the chain are executed within a transaction to maintain data integrity.
+
+2. **Validate Input Data**:
+   - Sanitize and validate input data (e.g., `values`, `where` conditions) to prevent SQL injection.
+
+3. **Preview Queries**:
+   - Use `.build()` to inspect generated SQL queries before execution, especially for complex chains.
+
+4. **Handle Errors Gracefully**:
+   - Implement robust error handling to capture and log issues without crashing the application.
+
+5. **Close Connections**:
+   - Always close the database connection in the `finally` block to avoid resource leaks.
 
 ---

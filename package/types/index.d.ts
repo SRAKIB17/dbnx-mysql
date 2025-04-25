@@ -1,6 +1,6 @@
 import { QueryResult } from "mysql2";
-import { Model } from "../core/model";
-import { Charset, Collation, Engine } from "./engine_options";
+import { Model } from "../core/model.js";
+import { Charset, Collation, Engine } from "./engine_options.js";
 export type Attributes = Record<string, ColumnOptions>;
 export type TableOptions = {
     engine?: Engine;

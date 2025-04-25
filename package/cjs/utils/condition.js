@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.dbnxCondition = dbnxCondition;
-const sanitize_1 = require("./sanitize");
+const sanitize_js_1 = require("./sanitize.js");
 function handlePattern(value, operator) {
     const escapeRegexp = (str) => {
         return `'${str.replace(/([.*+?^=!:${}()|\[\]\/\\])/g, "\\$1")}'`;
@@ -36,7 +36,7 @@ function handlePattern(value, operator) {
                 }
             })}'`;
         default:
-            return (0, sanitize_1.sanitize)(value);
+            return (0, sanitize_js_1.sanitize)(value);
     }
 }
 function dbnxCondition(filters, joinBy = "AND") {
@@ -51,24 +51,24 @@ function dbnxCondition(filters, joinBy = "AND") {
         }
         else if (typeof value == "object") {
             if (Array.isArray(value)) {
-                conditions.push(`\`${column}\` IN ${(0, sanitize_1.sanitize)(value)}`);
+                conditions.push(`\`${column}\` IN ${(0, sanitize_js_1.sanitize)(value)}`);
             }
             else {
                 if (Array.isArray(value?.notIn) && value?.notIn?.length) {
-                    conditions.push(`\`${column}\` NOT IN ${(0, sanitize_1.sanitize)(value?.notIn)}`);
+                    conditions.push(`\`${column}\` NOT IN ${(0, sanitize_js_1.sanitize)(value?.notIn)}`);
                 }
                 if (Array.isArray(value?.in) && value?.in?.length) {
-                    conditions.push(`\`${column}\` NOT IN ${(0, sanitize_1.sanitize)(value?.in)}`);
+                    conditions.push(`\`${column}\` NOT IN ${(0, sanitize_js_1.sanitize)(value?.in)}`);
                 }
                 if (Array.isArray(value?.between) && value?.between?.length == 2) {
-                    conditions.push(`\`${column}\` BETWEEN ${(0, sanitize_1.sanitize)(value?.between?.[0])} AND ${(0, sanitize_1.sanitize)(value?.between?.[1])}`);
+                    conditions.push(`\`${column}\` BETWEEN ${(0, sanitize_js_1.sanitize)(value?.between?.[0])} AND ${(0, sanitize_js_1.sanitize)(value?.between?.[1])}`);
                 }
                 if (Array.isArray(value?.notBetween) &&
                     value?.notBetween?.length == 2) {
-                    conditions.push(`\`${column}\` NOT BETWEEN ${(0, sanitize_1.sanitize)(value?.notBetween?.[0])} AND ${(0, sanitize_1.sanitize)(value?.notBetween?.[1])}`);
+                    conditions.push(`\`${column}\` NOT BETWEEN ${(0, sanitize_js_1.sanitize)(value?.notBetween?.[0])} AND ${(0, sanitize_js_1.sanitize)(value?.notBetween?.[1])}`);
                 }
                 if (Array.isArray(value?.inRange) && value?.inRange?.length == 2) {
-                    conditions.push(`\`${column}\` BETWEEN ${(0, sanitize_1.sanitize)(value?.inRange?.[0])} AND ${(0, sanitize_1.sanitize)(value?.inRange?.[1])}`);
+                    conditions.push(`\`${column}\` BETWEEN ${(0, sanitize_js_1.sanitize)(value?.inRange?.[0])} AND ${(0, sanitize_js_1.sanitize)(value?.inRange?.[1])}`);
                 }
                 if (Array.isArray(value?.$or) && value?.$or?.length) {
                     const orConditions = value.$or.map((subFilter) => dbnxCondition({ [column]: subFilter }, "OR"));
@@ -88,22 +88,22 @@ function dbnxCondition(filters, joinBy = "AND") {
                     conditions.push(`\`${column}\` REGEXP ${handlePattern(value.regexp, "REGEXP")}`);
                 }
                 if (value.eq) {
-                    conditions.push(`\`${column}\` = ${(0, sanitize_1.sanitize)(value?.eq)}`);
+                    conditions.push(`\`${column}\` = ${(0, sanitize_js_1.sanitize)(value?.eq)}`);
                 }
                 if (value.gt) {
-                    conditions.push(`\`${column}\` > ${(0, sanitize_1.sanitize)(value?.gt)}`);
+                    conditions.push(`\`${column}\` > ${(0, sanitize_js_1.sanitize)(value?.gt)}`);
                 }
                 if (value.lt) {
-                    conditions.push(`\`${column}\` < ${(0, sanitize_1.sanitize)(value?.lt)}`);
+                    conditions.push(`\`${column}\` < ${(0, sanitize_js_1.sanitize)(value?.lt)}`);
                 }
                 if (value.gte) {
-                    conditions.push(`\`${column}\` >= ${(0, sanitize_1.sanitize)(value?.gte)}`);
+                    conditions.push(`\`${column}\` >= ${(0, sanitize_js_1.sanitize)(value?.gte)}`);
                 }
                 if (value.lte) {
-                    conditions.push(`\`${column}\` <= ${(0, sanitize_1.sanitize)(value?.lte)}`);
+                    conditions.push(`\`${column}\` <= ${(0, sanitize_js_1.sanitize)(value?.lte)}`);
                 }
                 if (value.neq) {
-                    conditions.push(`\`${column}\` != ${(0, sanitize_1.sanitize)(value?.neq)}`);
+                    conditions.push(`\`${column}\` != ${(0, sanitize_js_1.sanitize)(value?.neq)}`);
                 }
                 if (value?.isNull != undefined) {
                     if (value.isNull) {
@@ -116,7 +116,7 @@ function dbnxCondition(filters, joinBy = "AND") {
             }
         }
         else if (typeof value === "string") {
-            conditions.push(`\`${column}\` = ${(0, sanitize_1.sanitize)(value)}`);
+            conditions.push(`\`${column}\` = ${(0, sanitize_js_1.sanitize)(value)}`);
         }
     }
     return conditions?.length ? conditions?.join(` ${joinBy || "AND"} `) : "";

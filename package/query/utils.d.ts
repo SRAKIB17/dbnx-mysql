@@ -1,5 +1,5 @@
-import { OperatorType } from "../utils";
-import { FindAllParamsType, SortType } from "./find";
+import { OperatorType } from "../utils/index.js";
+import { FindAllParamsType, SortType } from "./find.js";
 export type JoinsType<Tables extends string[]> = Array<{
     operator?: OperatorType | string;
     type?: "JOIN" | "INNER JOIN" | "OUTER JOIN" | "CROSS JOIN" | "RIGHT JOIN" | "LEFT JOIN";

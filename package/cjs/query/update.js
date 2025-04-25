@@ -1,8 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.update = update;
-const utils_1 = require("../utils");
-const utils_2 = require("./utils");
+const index_js_1 = require("../utils/index.js");
+const utils_js_1 = require("./utils.js");
 function update(table, { joins = [], values, where = "", defaultValues = [], limit, sort, fromSubQuery, setCalculations, }) {
     if (!table) {
         throw new Error("⚠️ The `table` parameter is required.");
@@ -22,13 +22,13 @@ function update(table, { joins = [], values, where = "", defaultValues = [], lim
             const caseStatement = value?.case
                 ?.map((caseCondition) => {
                 const { when, then } = caseCondition;
-                return `WHEN ${when} THEN ${(0, utils_1.escape)(then)}`;
+                return `WHEN ${when} THEN ${(0, index_js_1.escape)(then)}`;
             })
                 .join(" ");
-            updateInfo += `${updateInfo ? ", " : ""}${column} = CASE ${caseStatement} ELSE ${(0, utils_1.escape)(value?.default)} END`;
+            updateInfo += `${updateInfo ? ", " : ""}${column} = CASE ${caseStatement} ELSE ${(0, index_js_1.escape)(value?.default)} END`;
         }
         else {
-            const updateValue = typeof value === "number" ? value : (0, utils_1.escape)(value).trim();
+            const updateValue = typeof value === "number" ? value : (0, index_js_1.escape)(value).trim();
             updateInfo += `${updateInfo ? ", " : ""}${column} = ${updateValue}`;
         }
     }
@@ -51,13 +51,13 @@ function update(table, { joins = [], values, where = "", defaultValues = [], lim
             updateInfo += `${updateInfo ? ", " : ""}${column} = DEFAULT`;
         }
     }
-    const joinStatements = (0, utils_2.parseJoins)(joins);
+    const joinStatements = (0, utils_js_1.parseJoins)(joins);
     let query = `UPDATE${joinStatements} ${table} SET ${updateInfo}`;
     if (where) {
         query += ` WHERE ${where}`;
     }
     if (sort) {
-        query += (0, utils_2.parseSort)(sort);
+        query += (0, utils_js_1.parseSort)(sort);
     }
     if (limit) {
         query += ` LIMIT ${limit}`;

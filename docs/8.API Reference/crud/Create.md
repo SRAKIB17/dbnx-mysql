@@ -1,173 +1,216 @@
-### API Reference for `create` Method
+# `@dbnx/mysql` executeMultiple() Method
 
-This reference explains the usage of the `create` method, which is used to insert new records into a table or model.
+The `executeMultiple()` method in `@dbnx/mysql` enables the execution of multiple database queries in sequence within a single transaction. This method supports chaining operations like `update`, `findAll`, `create`, `findOne`, and `delete`, providing a streamlined way to perform complex database operations.
 
 ---
 
-### **`create` Method**
+## 1. Overview
 
-#### **Method Signature**
+The `executeMultiple()` method allows developers to chain multiple database operations (e.g., updates, inserts, queries, and deletions) and execute them sequentially in a single call. This approach ensures efficient query execution and simplifies transaction management, with built-in error handling and connection cleanup.
 
-```typescript
-public create<tables extends string[]>(table: string, values: CreateParamsType<[]>, options?: CreateOptionsType): MySQLHandler;
-public create<tables extends string[]>(model: typeof Model, values: CreateParamsType<[]>, options?: CreateOptionsType): Promise<ResponseType>;
-public create(...args: any): MySQLHandler | Promise<ResponseType>;
+---
+
+## 2. Setup Database Connection
+
+The `DBnx` instance is initialized to establish a connection to the MySQL database.
+
+### Code
+
+```javascript
+// database.js
+import { DBnx } from '@dbnx/mysql';
+
+// Initialize DBnx instance
+export const db = new DBnx({
+  host: 'localhost',
+  user: 'root',
+  password: '11224455',
+  database: 'world',
+  waitForConnections: true,
+  multipleStatements: true,
+  connectionLimit: 10,
+  queueLimit: 0,
+}).connect();
 ```
 
-#### **Description**
+### Parameters
 
-The `create` method is used to insert new records into a table or model. The method supports both direct table insertion and ORM-based model insertion. It takes the values to be inserted and options that define the insertion behavior.
-
----
-
-### **Parameters**
-
-1. **`table`** (required)  
-   - Type: `string`  
-   - Description: The name of the table into which the record will be inserted.  
-   - Example: `"users"`, `"products"`
-
-2. **`model`** (required for Model-based queries)  
-   - Type: `typeof Model`  
-   - Description: The model class (e.g., `User`, `Product`) if you prefer querying through the ORM model rather than using the table name directly.  
-   - Example: `User`, `Product`
-
-3. **`values`** (required)  
-   - Type: `CreateParamsType<[]>`  
-   - Description: The values to be inserted into the table or model.  
-   - Example:
-
-     ```typescript
-     {
-       name: "John",
-       age: 30,
-       email: "john@example.com"
-     }
-     ```
-
-4. **`options`** (optional)  
-   - Type: `CreateOptionsType`  
-   - Description: Options that define the behavior of the insertion (e.g., `engine`, `charset`, `collation`, `auto_increment`).  
-   - Example:
-
-     ```typescript
-     {
-       engine: "InnoDB",
-       charset: "utf8mb4",
-       collation: "utf8mb4_unicode_ci",
-       auto_increment: 100
-     }
-     ```
+| Parameter              | Type      | Description                                                                 |
+|------------------------|-----------|-----------------------------------------------------------------------------|
+| `host`                 | `string`  | MySQL server hostname or IP address.                                        |
+| `user`                 | `string`  | MySQL username.                                                             |
+| `password`             | `string`  | MySQL password.                                                             |
+| `database`             | `string`  | Database name.                                                              |
+| `waitForConnections`   | `boolean` | Wait for connections when the pool is full.                                 |
+| `multipleStatements`   | `boolean` | Allow multiple SQL statements in a single query.                            |
+| `connectionLimit`      | `number`  | Maximum number of connections in the pool.                                  |
+| `queueLimit`           | `number`  | Maximum number of queued connection requests (0 = no limit).                |
 
 ---
 
-### **Response**
+## 3. Using executeMultiple()
 
-- **When a table name is provided**:  
-  - Returns an instance of `MySQLHandler`, which is the query builder.
-  
-- **When a model class is provided**:  
-  - Returns a `Promise<ResponseType>` with the result of the insert operation executed on the database.
+The `executeMultiple()` method executes a sequence of chained queries, such as updating records, retrieving data, inserting new records, and deleting records.
 
----
+### Example Code
 
-### **Details of `CreateParamsType` and `CreateOptionsType`**
+```javascript
+// executeQueries.js
+import { db } from './database.js';
 
-```typescript
-export type CreateParamsType<Tables extends string[]> = {
-    // Define the fields and their values for inserting new records.
-    [key: string]: string | number | boolean | null;
+async function executeMultipleQueries() {
+  try {
+    const result = await db
+      .update('product', {
+        values: { title: 'SRAKIB brand' },
+        where: 'product_id = 1',
+      })
+      .findAll('product')
+      .create('product', {
+        title: 'test',
+      })
+      .findOne('product', {
+        where: 'product_id = 1',
+      })
+      .delete('product', {
+        where: 'product_id = 2',
+      })
+      .executeMultiple();
+
+    console.log('Multiple queries executed successfully:', result);
+  } catch (error) {
+    console.error('Error executing multiple queries:', error);
+  } finally {
+    await db.close(); // Close the database connection
+  }
 }
 
-export type CreateOptionsType = {
-    engine?: Engine;        // Optional: Defines the storage engine (e.g., "InnoDB")
-    charset?: Charset;      // Optional: Defines the character set (e.g., "utf8mb4")
-    collation?: Collation;  // Optional: Defines the collation (e.g., "utf8mb4_unicode_ci")
-    auto_increment?: number; // Optional: Defines the auto-increment value for the primary key
-};
-```
-
-- **`CreateParamsType`**: This defines the fields and their values that will be inserted into the table. It can include basic types like strings, numbers, booleans, or `null`.
-
-- **`CreateOptionsType`**: This defines additional options for the creation operation, such as the database engine, charset, collation, and auto-increment values for primary keys.
-
----
-
-### **Examples**
-
-#### Example 1: Inserting a record using a table name
-
-```typescript
-const query = create('users', {
-    name: "John",
-    age: 30,
-    email: "john@example.com"
-}, {
-    engine: "InnoDB",
-    charset: "utf8mb4",
-    collation: "utf8mb4_unicode_ci"
-});
-console.log(query);  // The resulting INSERT SQL query string
-```
-
-#### Example 2: Inserting a record using a model
-
-```typescript
-const result = await User.create({
-    name: "John",
-    age: 30,
-    email: "john@example.com"
-}, {
-    engine: "InnoDB",
-    charset: "utf8mb4",
-    collation: "utf8mb4_unicode_ci"
-});
-console.log(result);  // Result of the insert operation
+executeMultipleQueries();
 ```
 
 ---
 
-### **Errors**
+## 4. Query Methods Breakdown
 
-- **Missing arguments**: If no arguments are provided or if the arguments are invalid, an error will be thrown.
-  
-  Example:
+### update
 
-  ```typescript
-  // Missing table name or model
-  create();
-  // Error: No arguments provided to 'create'. Expected a table name and/or values.
-  ```
+Updates existing records in a table.
 
-- **Invalid first argument**: The first argument must be either a table name (string) or a model class.
+- **Signature**: `update(table: string, params: UpdateParamsType): DBnx`
+- **Parameters**:
+  - `table`: Table name (e.g., `'product'`).
+  - `params.values`: Object with column-value pairs to update.
+  - `params.where`: Condition for selecting records.
 
-  Example:
+### findAll
 
-  ```typescript
-  // Invalid argument type
-  create(123, { name: "John", age: 30 });
-  // Error: Invalid first argument: must be a table name or a Model class.
-  ```
+Retrieves all records from a table.
 
-- **Invalid values**: If `values` is not provided or is not an object, an error will be thrown.
+- **Signature**: `findAll(table: string, config?: FindAllParamsType): DBnx`
+- **Parameters**:
+  - `table`: Table name (e.g., `'product'`).
+  - `config`: Optional query configuration (e.g., filters, sorting).
 
-  Example:
+### create
 
-  ```typescript
-  // Invalid values
-  create('users', "name: John");
-  // Error: Values must be a non-empty object.
-  ```
+Inserts a new record into a table.
+
+- **Signature**: `create(table: string, values: CreateParamsType): DBnx`
+- **Parameters**:
+  - `table`: Table name (e.g., `'product'`).
+  - `values`: Object with column-value pairs to insert.
+
+### findOne
+
+Retrieves a single record from a table.
+
+- **Signature**: `findOne(table: string, config?: FindOneParamsType): DBnx`
+- **Parameters**:
+  - `table`: Table name (e.g., `'product'`).
+  - `config.where`: Condition for selecting the record.
+
+### delete
+
+Deletes records from a table.
+
+- **Signature**: `delete(table: string, params: DeleteParamsType): DBnx`
+- **Parameters**:
+  - `table`: Table name (e.g., `'product'`).
+  - `params.where`: Condition for selecting records to delete.
+
+### executeMultiple
+
+Executes all queued queries in sequence.
+
+- **Signature**: `executeMultiple(): Promise<ResponseType[]>`
+- **Returns**: An array of results from each query.
 
 ---
 
-### **Internal Methods**
+## 5. Error Handling
 
-- **`insertInto` function**: This function constructs the actual SQL `INSERT` query based on the provided parameters.
-- **`runHooks` function**: If applicable, this can run hooks like `beforeCreate` before executing the insert operation.
+Wrap the query chain in a `try...catch` block to handle errors gracefully.
+
+### Example
+
+```javascript
+try {
+  const result = await db
+    .update('product', { values: { title: 'SRAKIB brand' }, where: 'product_id = 1' })
+    .findAll('product')
+    .create('product', { title: 'test' })
+    .findOne('product', { where: 'product_id = 1' })
+    .delete('product', { where: 'product_id = 2' })
+    .executeMultiple();
+  console.log('Results:', result);
+} catch (error) {
+  console.error('Error executing query chain:', error);
+}
+```
 
 ---
 
-### **Use Case**
+## 6. Closing the Connection
 
-Use the `create` method when you need to insert new records into a table, either directly by specifying the table name or via ORM model classes. You can include additional options such as `charset`, `collation`, and `auto_increment` for advanced table configurations. This method ensures that the insertion operation is performed correctly with the provided data.
+Always close the database connection after executing queries to free up resources.
+
+```javascript
+await db.close();
+```
+
+---
+
+## 7. Example Output
+
+Upon successful execution, the output will resemble:
+
+```plaintext
+Multiple queries executed successfully: [
+  { /* Update result */ },
+  { /* FindAll result */ },
+  { /* Create result */ },
+  { /* FindOne result */ },
+  { /* Delete result */ }
+]
+```
+
+---
+
+## 8. Best Practices
+
+1. **Use Transactions for Consistency**:
+   - Ensure all queries in the chain are executed within a transaction to maintain data integrity.
+
+2. **Validate Input Data**:
+   - Sanitize and validate input data (e.g., `values`, `where` conditions) to prevent SQL injection.
+
+3. **Preview Queries**:
+   - Use `.build()` to inspect generated SQL queries before execution, especially for complex chains.
+
+4. **Handle Errors Gracefully**:
+   - Implement robust error handling to capture and log issues without crashing the application.
+
+5. **Close Connections**:
+   - Always close the database connection in the `finally` block to avoid resource leaks.
+
+---

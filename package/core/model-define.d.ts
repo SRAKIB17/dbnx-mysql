@@ -1,6 +1,6 @@
-import { DBnx } from "./handler";
-import { ColumnOptions } from "../types";
-import { Charset, Collation, Engine } from "../types/engine_options";
+import { ColumnOptions } from "../types/index.js";
+import { Charset, Collation, Engine } from "../types/engine_options.js";
+import { DBnxHandler } from "./handler.js";
 export type TableOptions = {
     engine?: Engine;
     charset?: Charset;
@@ -13,7 +13,7 @@ export declare class ModelDefine {
     static ddlQuery: string;
     static modelAttributes: Attributes;
     static tableOptions: TableOptions;
-    static dbInstance: DBnx;
+    static dbInstance: DBnxHandler;
     static tableName: string;
     static dbTableIdentifier: string;
     static generateDDL(attributes: Attributes): void;

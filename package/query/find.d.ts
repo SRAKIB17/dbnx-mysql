@@ -1,4 +1,4 @@
-import { JoinsType } from "./utils";
+import { JoinsType } from "./utils.js";
 /**
  * Type used for specifying sorting.
  * Can be:

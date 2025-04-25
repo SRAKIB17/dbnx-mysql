@@ -1,183 +1,183 @@
-### API Reference for `update` Method
 
-This reference explains the usage of the `update` method, including parameters, response, examples, and possible errors.
+# `@dbnx/mysql` update Method API Reference
+
+The `update` method in `@dbnx/mysql` enables updating records in a MySQL database table or model based on specified conditions. It supports flexible configuration, including direct value updates, `CASE` expressions, joins, sorting, limits, and calculated fields, making it suitable for both simple and complex update operations.
 
 ---
 
-### **`update` Method**
+## 1. Overview
 
-#### **Method Signature**
+The `update` method modifies existing records in a specified table or model, offering extensive customization through the `UpdateParamsType` interface. It supports both table-based queries (for query building) and model-based queries (for immediate execution), with options for conditional updates, joins, sorting, and more.
+
+---
+
+## 2. Method Signature
 
 ```typescript
-public update<tables extends string[]>(table: string, Props: UpdateParamsType<tables>): MySQLHandler;
-public update<tables extends string[]>(model: typeof Model, Props: UpdateParamsType<tables>): Promise<ResponseType>;
+public update<tables extends string[]>(table: string, props: UpdateParamsType<tables>): MySQLHandler;
+public update<tables extends string[]>(model: typeof Model, props: UpdateParamsType<tables>): Promise<ResponseType>;
 public update(...args: any): MySQLHandler | Promise<ResponseType>;
 ```
 
-#### **Description**
+---
 
-The `update` method is used to update existing records in a table or model. The update is performed based on the conditions provided in the parameters. You can specify fields to update, conditions to match, sorting, and other query modifiers.
+## 3. Parameters
+
+| Parameter | Type                     | Description                                                                 | Required |
+|-----------|--------------------------|-----------------------------------------------------------------------------|----------|
+| `table`   | `string`                 | Name of the table to update (e.g., `'users'`).                              | Yes (if not using model) |
+| `model`   | `typeof Model`           | Model class for ORM-based updates (e.g., `User`).                           | Yes (if not using table) |
+| `props`   | `UpdateParamsType`       | Configuration object specifying update values, conditions, and options.     | Yes      |
 
 ---
 
-### **Parameters**
+## 4. Response
 
-1. **`table`** (required)  
-   - Type: `string`  
-   - Description: The name of the table where records will be updated.  
-   - Example: `"users"`, `"products"`
-
-2. **`model`** (required for Model-based queries)  
-   - Type: `typeof Model`  
-   - Description: The model class (e.g., `User`, `Product`) if you prefer querying through the ORM model rather than using the table name directly.  
-   - Example: `User`, `Product`
-
-3. **`Props`** (required)  
-   - Type: `UpdateParamsType<tables>`  
-   - Description: The parameters for the update operation, including columns to update, conditions, sorting, and other options.  
-   - Example:
-
-     ```typescript
-     {
-       values: { 
-         age: 30, 
-         name: "John" 
-       },
-       where: "id = 5",
-       sort: { name: "ASC" },
-       limit: 10,
-       joins: { table: "orders", on: "users.id = orders.user_id" }
-     }
-     ```
+- **Table Name**: Returns a `MySQLHandler` instance for query chaining (e.g., with `.build()` or `.execute()`).
+- **Model**: Returns a `Promise<ResponseType>` containing the result of the update operation (e.g., number of affected rows).
 
 ---
 
-### **Response**
+## 5. UpdateParamsType
 
-- **When a table name is provided**:  
-  - Returns an instance of `MySQLHandler`, which is the query builder.
-  
-- **When a model class is provided**:  
-  - Returns a `Promise<ResponseType>` with the result of the update operation executed on the database.
-
----
-
-### **Details of `UpdateParamsType`**
+The `UpdateParamsType` interface defines the configuration for the update operation.
 
 ```typescript
 export type UpdateParamsType<Tables extends string[]> = {
-    values?: { // The data to update
-        [key: string]: string | number | null | { 
-            case: { 
-                when: string;  // The condition in the WHEN clause
-                then: any;     // The value to set in the THEN clause
-            }[];  // The CASE structure with an array of WHEN/THEN conditions
-            default: any;  // The default value for the column when no conditions match
-        };
-    },
-    sort?: { [P in Tables[number]]?: Record<string, 1 | -1> } | Record<string, 1 | -1> | string,
-    where: string,   // The condition to identify which rows to update
-    defaultValues?: string[], // Optional: Columns to set to default values
-    limit?: string | number,  // Optional: Limits the number of records to update
-    joins?: JoinsType<Tables>, // Optional: Join conditions for the update query
-    fromSubQuery?: Record<string, string>, // Optional: Subqueries for the update operation
-    setCalculations?: { // For SET calculation
-        [key: string]: string; // Expressions to calculate new values
-    }
-}
+  values?: {
+    [key: string]: string | number | null | {
+      case: { when: string; then: any }[];
+      default: any;
+    };
+  };
+  sort?: { [P in Tables[number]]?: Record<string, 1 | -1> } | Record<string, 1 | -1> | string;
+  where: string;
+  defaultValues?: string[];
+  limit?: string | number;
+  joins?: JoinsType<Tables>;
+  fromSubQuery?: Record<string, string>;
+  setCalculations?: { [key: string]: string };
+};
 ```
 
-- **`values`**: Specifies the columns to be updated. It can include:
-  - Direct values (e.g., `{ age: 30, name: "John" }`).
-  - Complex `CASE` structures with conditions and default values.
+### Parameters
 
-- **`sort`**: Sorting options for the query (e.g., `{ name: "ASC" }`).
-
-- **`where`**: The condition for selecting the rows to be updated (e.g., `"id = 5"`).
-
-- **`defaultValues`**: Columns to be set to their default values.
-
-- **`limit`**: Limits the number of records to update.
-
-- **`joins`**: Specifies join conditions if the update operation involves multiple tables.
-
-- **`fromSubQuery`**: Allows the use of a subquery for the update operation.
-
-- **`setCalculations`**: Allows you to specify calculations to set the new values (e.g., `{ total_price: "quantity * unit_price" }`).
+| Parameter          | Type                                      | Description                                                                 |
+|--------------------|-------------------------------------------|-----------------------------------------------------------------------------|
+| `values`           | `object`                                  | Columns and values to update (direct values or `CASE` expressions).         |
+| `sort`             | `object \| string`                        | Sorting criteria (e.g., `{ name: 1 }` for ascending).                       |
+| `where`            | `string`                                  | Condition for selecting records (e.g., `'id = 5'`).                         |
+| `defaultValues`    | `string[]`                                | Columns to set to their default values.                                    |
+| `limit`            | `string \| number`                        | Maximum number of records to update.                                       |
+| `joins`            | `JoinsType<Tables>`                       | Join conditions for multi-table updates.                                   |
+| `fromSubQuery`     | `Record<string, string>`                  | Subquery for updating records.                                             |
+| `setCalculations`  | `{ [key: string]: string }`               | Calculated values (e.g., `{ total_price: 'quantity * unit_price' }`).       |
 
 ---
 
-### **Examples**
+## 6. Examples
 
-#### Example 1: Updating records using a table name
+### Updating Records Using a Table Name
+
+Construct an update query with sorting, limit, and joins.
 
 ```typescript
-const query = update('users', {
-    values: { age: 30, name: "John" },
-    where: "id = 5",
-    sort: { name: "ASC" },
-    limit: 10,
-    joins: { table: "orders", on: "users.id = orders.user_id" }
-});
-console.log(query);  // The resulting UPDATE SQL query string
+const query = db.update('users', {
+  values: { age: 30, name: 'John' },
+  where: 'id = 5',
+  sort: { name: 'ASC' },
+  limit: 10,
+  joins: { type: 'INNER', table: 'orders', on: 'users.id = orders.user_id' },
+}).build();
+console.log(query);
+// SQL: UPDATE users INNER JOIN orders ON users.id = orders.user_id SET age = 30, name = 'John' WHERE id = 5 ORDER BY name ASC LIMIT 10;
 ```
 
-#### Example 2: Updating records using a model
+Execute the query:
+
+```typescript
+const result = await db.update('users', {
+  values: { age: 30, name: 'John' },
+  where: 'id = 5',
+}).execute();
+console.log(result); // Logs execution result
+```
+
+### Updating Records Using a Model
+
+Update records directly using a model.
 
 ```typescript
 const result = await User.update({
-    values: { age: 30, name: "John" },
-    where: "id = 5",
-    sort: { name: "ASC" },
-    limit: 10
+  values: { age: 30, name: 'John' },
+  where: 'id = 5',
+  sort: { name: 'ASC' },
+  limit: 10,
 });
-console.log(result);  // Result of the update operation
+console.log(result); // Logs result of update operation
+```
+
+### Using CASE Expressions
+
+Perform conditional updates with `CASE`.
+
+```typescript
+const query = await db.update('users', {
+  values: {
+    age: {
+      case: [
+        { when: 'status = "active"', then: 35 },
+        { when: 'status = "inactive"', then: 25 },
+      ],
+      default: 30,
+    },
+  },
+  where: 'id = 5',
+}).build();
+console.log(query);
+// SQL: UPDATE users SET age = CASE WHEN status = 'active' THEN 35 WHEN status = 'inactive' THEN 25 ELSE 30 END WHERE id = 5;
+```
+
+### Using Joins and Calculations
+
+Update records with joins and calculated fields.
+
+```typescript
+const query = await db.update('orders', {
+  values: { status: 'shipped' },
+  setCalculations: { total_price: 'quantity * unit_price' },
+  where: 'order_id = 100',
+  joins: { type: 'INNER', table: 'products', on: 'orders.product_id = products.id' },
+}).build();
+console.log(query);
+// SQL: UPDATE orders INNER JOIN products ON orders.product_id = products.id SET status = 'shipped', total_price = quantity * unit_price WHERE order_id = 100;
 ```
 
 ---
 
-### **Errors**
+## 7. Errors
 
-- **Missing arguments**: If no arguments are provided or if the arguments are invalid, an error will be thrown.
-  
-  Example:
-
-  ```typescript
-  // Missing table name or model
-  update();
-  // Error: No arguments provided to 'update'. Expected a table name or model.
-  ```
-
-- **Invalid first argument**: The first argument must be either a table name (string) or a model class.
-
-  Example:
-
-  ```typescript
-  // Invalid argument type
-  update(123, { where: "id = 5" });
-  // Error: Invalid first argument: must be a table name or a Model class.
-  ```
-
-- **Props must be a non-empty object**: If `Props` is not provided or is not an object, an error will be thrown.
-
-  Example:
-
-  ```typescript
-  // Invalid props
-  update('users', "where: id = 5");
-  // Error: Props must be a non-empty object.
-  ```
+| Error Message                                      | Cause                                              | Solution                                                                 |
+|----------------------------------------------------|----------------------------------------------------|--------------------------------------------------------------------------|
+| `No arguments provided to 'update'.`               | Missing table name or model.                       | Provide a valid table name or model as the first argument.               |
+| `Invalid first argument: must be a table name or a Model class.` | First argument is neither a string nor a model.    | Ensure the first argument is a valid table name or model class.          |
+| `Props must be a non-empty object.`                | Invalid or empty `props` object.                   | Provide a valid `UpdateParamsType` object with at least a `where` clause.|
 
 ---
 
-### **Internal Methods**
+## 8. Internal Methods
 
-- **`update` function**: This function constructs the actual SQL `UPDATE` query based on the provided parameters.
-- **`parseJoins` function**: Parses and formats the `joins` parameter into SQL JOIN clauses.
-- **`parseSort` function**: Parses and formats the `sort` parameter into SQL ORDER BY clauses.
+- **`update`**: Constructs the SQL `UPDATE` query based on the provided parameters.
+- **`parseJoins`**: Formats the `joins` parameter into SQL `JOIN` clauses.
+- **`parseSort`**: Formats the `sort` parameter into SQL `ORDER BY` clauses.
 
 ---
 
-### **Use Case**
+## 9. Use Cases
 
-Use the `update` method when you need to modify existing records in a table, with various conditions and sorting. It can be used with both direct table names or ORM-based models. This method supports advanced features like `CASE` expressions, sorting, joining multiple tables, and limiting the number of records affected.
+- **Simple Updates**: Update specific fields for records matching a condition (e.g., updating user details).
+- **Conditional Updates**: Use `CASE` expressions for dynamic updates based on conditions (e.g., setting different values for active vs. inactive users).
+- **Multi-Table Updates**: Use `joins` to update records across related tables (e.g., updating order status based on product data).
+- **Calculated Updates**: Use `setCalculations` for dynamic field updates (e.g., recalculating totals based on other columns).
+
+---

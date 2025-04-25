@@ -1,4 +1,4 @@
-import { JoinsType } from "./utils";
+import { JoinsType } from "./utils.js";
 /**
  * Type representing the structure of parameters that can be passed
  * to the `update` function for generating a dynamic SQL UPDATE query.

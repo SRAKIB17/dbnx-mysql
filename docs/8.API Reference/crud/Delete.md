@@ -1,150 +1,132 @@
-### API Reference for `delete` Method
 
-This reference provides detailed information on how to use the `delete` method in both Model and DBHandler, including parameters, response, examples, and possible errors.
+# `@dbnx/mysql` delete Method API Reference
+
+The `delete` method in `@dbnx/mysql` enables the deletion of records from a MySQL database table or model based on specified conditions. It supports both table-based and model-based queries, with options for filtering, sorting, limiting, and joining tables.
 
 ---
 
-### **`delete` Method**
+## 1. Overview
 
-#### **Method Signature**
+The `delete` method removes records from a specified table or model, offering flexible configuration through the `DeleteParamsType` interface. It can be used with a raw table name for query building or with a model for immediate execution, supporting conditions, joins, sorting, and limits.
+
+---
+
+## 2. Method Signature
 
 ```typescript
-public delete<tables extends string[]>(table: string, Props: DeleteParamsType<tables>): MySQLHandler;
-public delete<tables extends string[]>(model: typeof Model, Props: DeleteParamsType<tables>): Promise<ResponseType>;
+public delete<tables extends string[]>(table: string, props: DeleteParamsType<tables>): MySQLHandler;
+public delete<tables extends string[]>(model: typeof Model, props: DeleteParamsType<tables>): Promise<ResponseType>;
 public delete(...args: any): MySQLHandler | Promise<ResponseType>;
 ```
 
-#### **Description**
+---
 
-The `delete` method is used to delete records from a table or model based on the provided conditions. It can be used either by passing a table name directly or by querying a model class.
+## 3. Parameters
+
+| Parameter | Type                     | Description                                                                 | Required |
+|-----------|--------------------------|-----------------------------------------------------------------------------|----------|
+| `table`   | `string`                 | Name of the table to delete from (e.g., `'users'`).                         | Yes (if not using model) |
+| `model`   | `typeof Model`           | Model class for ORM-based deletion (e.g., `User`).                          | Yes (if not using table) |
+| `props`   | `DeleteParamsType`       | Configuration object specifying deletion conditions and options.            | Yes      |
 
 ---
 
-### **Parameters**
+## 4. Response
 
-1. **`table`** (required)  
-   - Type: `string`  
-   - Description: The name of the table from which records will be deleted.  
-   - Example: `"users"`, `"orders"`
-
-2. **`model`** (required for Model-based queries)  
-   - Type: `typeof Model`  
-   - Description: A model class (e.g., `User`, `Product`) if you prefer querying through the ORM model rather than using the table name directly.  
-   - Example: `User`, `Product`
-
-3. **`Props`** (required)  
-   - Type: `DeleteParamsType<tables>`  
-   - Description: An object that defines the parameters for the delete operation.  
-   - Example:
-
-     ```typescript
-     {
-       where: "age > 25",
-       sort: { name: "ASC" },
-       limit: 10,
-       joins: { table: "address", on: "users.id = address.user_id" }
-     }
-     ```
+- **Table Name**: Returns a `MySQLHandler` instance for query chaining (e.g., with `.build()` or `.execute()`).
+- **Model**: Returns a `Promise<ResponseType>` containing the result of the delete operation (e.g., number of affected rows).
 
 ---
 
-### **Response**
+## 5. DeleteParamsType
 
-- **When a table name is provided**:  
-  - Returns an instance of `MySQLHandler`, which is the query builder.
-  
-- **When a model class is provided**:  
-  - Returns a `Promise<ResponseType>` with the result of the delete operation executed on the database.
-
----
-
-### **Details of `DeleteParamsType`**
+The `DeleteParamsType` interface defines the configuration for the delete operation.
 
 ```typescript
 export interface DeleteParamsType<Tables extends string[]> {
-    where: string; // The condition to identify which rows to delete
-    sort?: SortType<Tables>; // Optional: Sorting options for the query
-    limit?: string | number; // Optional: Limit the number of deleted records
-    joins?: JoinsType<Tables>; // Optional: Join conditions for the delete query
+  where: string;                    // Condition for selecting rows to delete
+  sort?: SortType<Tables>;          // Optional sorting criteria
+  limit?: string | number;          // Optional limit on number of deleted rows
+  joins?: JoinsType<Tables>;        // Optional JOIN clauses for multi-table deletion
 }
 ```
 
-- **`where`**: The condition that specifies which rows should be deleted (e.g., `"age > 30"`).
-- **`sort`**: Sorting criteria for the query (e.g., `{ name: "ASC" }`).
-- **`limit`**: Limits the number of records to delete (e.g., `10`).
-- **`joins`**: Define join conditions if the delete query involves joining other tables.
+### Parameters
+
+| Parameter | Type                     | Description                                                                 |
+|-----------|--------------------------|-----------------------------------------------------------------------------|
+| `where`   | `string`                 | Condition for selecting records (e.g., `'age > 30'`).                       |
+| `sort`    | `SortType<Tables>`       | Sorting criteria (e.g., `{ name: 'ASC' }`).                                 |
+| `limit`   | `string \| number`        | Maximum number of records to delete (e.g., `10`).                           |
+| `joins`   | `JoinsType<Tables>`      | Join conditions for multi-table deletions (e.g., `{ table: 'orders', on: 'users.id = orders.user_id' }`). |
 
 ---
 
-### **Examples**
+## 6. Examples
 
-#### Example 1: Deleting records using a table name
+### Deleting Records Using a Table Name
+
+Construct a delete query with sorting, limit, and joins.
 
 ```typescript
-const query = dbHandler.delete('users', {
-    where: 'age > 30',
-    sort: { name: 'ASC' },
-    limit: 10,
-    joins: { table: 'orders', on: 'users.id = orders.user_id' }
-});
-console.log(query);  // The resulting DELETE SQL query string
+const query = db.delete('users', {
+  where: 'age > 30',
+  sort: { name: 'ASC' },
+  limit: 10,
+  joins: { type: 'INNER', table: 'orders', on: 'users.id = orders.user_id' },
+}).build();
+console.log(query);
+// SQL: DELETE FROM users INNER JOIN orders ON users.id = orders.user_id WHERE age > 30 ORDER BY name ASC LIMIT 10;
 ```
 
-#### Example 2: Deleting records using a model
+Execute the query:
+
+```typescript
+const result = await db.delete('users', {
+  where: 'age > 30',
+  sort: { name: 'ASC' },
+  limit: 10,
+}).execute();
+console.log(result); // Logs execution result
+```
+
+### Deleting Records Using a Model
+
+Delete records directly using a model.
 
 ```typescript
 const result = await User.delete({
-    where: 'age > 30',
-    sort: { name: 'ASC' },
-    limit: 10
+  where: 'age > 30',
+  sort: { name: 'ASC' },
+  limit: 10,
 });
-console.log(result);  // Result of the delete operation
+console.log(result); // Logs result of delete operation
 ```
 
 ---
 
-### **Errors**
+## 7. Errors
 
-- **Missing arguments**: If no arguments are provided or if the arguments are invalid, an error will be thrown.
-  
-  Example:
-
-  ```typescript
-  // Missing table name or model
-  delete();
-  // Error: No arguments provided to 'delete'. Expected a table name or model.
-  ```
-
-- **Invalid first argument**: The first argument must be either a table name (string) or a model class.
-
-  Example:
-
-  ```typescript
-  // Invalid argument type
-  delete(123, { where: "age > 30" });
-  // Error: Invalid first argument: must be a table name or a Model class.
-  ```
-
-- **Props must be a non-empty object**: If `Props` is not provided or is not an object, an error will be thrown.
-
-  Example:
-
-  ```typescript
-  // Invalid props
-  delete('users', "where: age > 30");
-  // Error: Props must be a non-empty object.
-  ```
+| Error Message                                      | Cause                                              | Solution                                                                 |
+|----------------------------------------------------|----------------------------------------------------|--------------------------------------------------------------------------|
+| `No arguments provided to 'delete'.`               | Missing table name or model.                       | Provide a valid table name or model as the first argument.               |
+| `Invalid first argument: must be a table name or a Model class.` | First argument is neither a string nor a model.    | Ensure the first argument is a valid table name or model class.          |
+| `Props must be a non-empty object.`                | Invalid or empty `props` object.                   | Provide a valid `DeleteParamsType` object with at least a `where` clause.|
 
 ---
 
-### **Internal Methods**
+## 8. Internal Methods
 
-- **`destroy` function**: This is used to construct the actual DELETE SQL query.
-- **`parseJoins` function**: Handles parsing and formatting the `joins` parameter into SQL JOIN clauses.
-- **`parseSort` function**: Handles parsing and formatting the `sort` parameter into SQL ORDER BY clauses.
+- **`destroy`**: Constructs the `DELETE` SQL query based on the provided parameters.
+- **`parseJoins`**: Formats the `joins` parameter into SQL `JOIN` clauses.
+- **`parseSort`**: Formats the `sort` parameter into SQL `ORDER BY` clauses.
 
 ---
 
-### **Use Case**
+## 9. Use Cases
 
-Use the `delete` method when you want to delete records from a table with specific conditions such as filtering, sorting, and limiting the number of records to be deleted. It can be used with both direct table names or ORM-based models.
+- **Selective Deletion**: Delete specific records based on conditions (e.g., inactive users or outdated orders).
+- **Multi-Table Deletion**: Use `joins` to delete records from related tables while maintaining referential integrity.
+- **Controlled Deletion**: Apply `sort` and `limit` to delete records in a specific order or restrict the number of deletions.
+
+---

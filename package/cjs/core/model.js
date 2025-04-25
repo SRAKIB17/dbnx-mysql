@@ -1,26 +1,14 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Model = void 0;
-const model_define_1 = require("./model-define");
 const query_1 = require("../query");
-class Model extends model_define_1.ModelDefine {
+const config_js_1 = require("./config.js");
+const model_define_js_1 = require("./model-define.js");
+class Model extends model_define_js_1.ModelDefine {
     static hooks = {};
     constructor(attributes) {
         super();
         Object.assign(this, attributes);
-    }
-    static addHook(hookName, fn) {
-        if (!this.hooks[hookName]) {
-            this.hooks[hookName] = [];
-        }
-        this.hooks[hookName].push(fn);
-    }
-    static async runHooks(hookName, ...args) {
-        if (this.hooks[hookName]) {
-            for (const hook of this.hooks[hookName]) {
-                await hook(...args);
-            }
-        }
     }
     static init(model, attributes, instance, options = {}) {
         Object.defineProperty(this, "name", { value: model });
@@ -30,7 +18,7 @@ class Model extends model_define_1.ModelDefine {
         if (!model) {
             throw new Error("🚨 Model name is required but not provided.");
         }
-        instance.logger_function(`✨ Creating model: \`${model}\``);
+        config_js_1.GlobalConfig.logger_function(`✨ Creating model: \`${model}\``);
         this.modelAttributes = attributes;
         const parts = model?.split(".");
         this.database = parts?.length > 1 ? parts[0] : instance.getConfig?.database;
@@ -48,14 +36,14 @@ class Model extends model_define_1.ModelDefine {
             throw new Error("Values must be a non-empty object.");
         }
         const result = await this.dbInstance.execute((0, query_1.insert)(this.dbTableIdentifier, values, options));
-        this.dbInstance.logger_function(`🆕 Create into: \`${this.dbTableIdentifier}\``);
+        config_js_1.GlobalConfig.logger_function(`🆕 Create into: \`${this.dbTableIdentifier}\``);
         return result;
     }
     static async findAll(Config) {
         if (Config && typeof Config !== "object") {
             throw new Error("Config must be a non-empty object.");
         }
-        this.dbInstance.logger_function(`📋 Find all from: \`${this.dbTableIdentifier}\``);
+        config_js_1.GlobalConfig.logger_function(`📋 Find all from: \`${this.dbTableIdentifier}\``);
         const result = await this.dbInstance.execute((0, query_1.find)(this.dbTableIdentifier, Config));
         return result;
     }
@@ -63,7 +51,7 @@ class Model extends model_define_1.ModelDefine {
         if (Config && typeof Config !== "object") {
             throw new Error("Config must be a non-empty object.");
         }
-        this.dbInstance.logger_function(`🔎 Find one from: \`${this.dbTableIdentifier}\``);
+        config_js_1.GlobalConfig.logger_function(`🔎 Find one from: \`${this.dbTableIdentifier}\``);
         let config = Config ?? {};
         config.limitSkip = { limit: 1 };
         const result = await this.dbInstance.execute((0, query_1.find)(this.dbTableIdentifier, config));
@@ -73,7 +61,7 @@ class Model extends model_define_1.ModelDefine {
         if (typeof Props !== "object") {
             throw new Error("Props must be a non-empty object.");
         }
-        this.dbInstance.logger_function(`✏️ Update from: \`${this.dbTableIdentifier}\``);
+        config_js_1.GlobalConfig.logger_function(`✏️ Update from: \`${this.dbTableIdentifier}\``);
         const result = await this.dbInstance.execute((0, query_1.update)(this.dbTableIdentifier, Props));
         return result;
     }
@@ -81,7 +69,7 @@ class Model extends model_define_1.ModelDefine {
         if (typeof Props !== "object") {
             throw new Error("Props must be a non-empty object.");
         }
-        this.dbInstance.logger_function(`🗑️ Delete from: \`${this.dbTableIdentifier}\``);
+        config_js_1.GlobalConfig.logger_function(`🗑️ Delete from: \`${this.dbTableIdentifier}\``);
         const result = await this.dbInstance.execute((0, query_1.destroy)(this.dbTableIdentifier, Props));
         return result;
     }
@@ -178,22 +166,22 @@ WHERE
         }
     }
     static async drop() {
-        this.dbInstance.logger_function(`🗑️ Dropping table: \`${this.dbTableIdentifier}\``);
+        config_js_1.GlobalConfig.logger_function(`🗑️ Dropping table: \`${this.dbTableIdentifier}\``);
         await this.dropTableConstraints();
         const query = `DROP TABLE IF EXISTS ${this.dbTableIdentifier}`;
-        this.dbInstance.logger_function(`📜 Executing query: ${query}`);
+        config_js_1.GlobalConfig.logger_function(`📜 Executing query: ${query}`);
         const data = await this.dbInstance.execute(query);
-        this.dbInstance.logger_function(`✅ Table \`${this.dbTableIdentifier}\` dropped successfully.`);
+        config_js_1.GlobalConfig.logger_function(`✅ Table \`${this.dbTableIdentifier}\` dropped successfully.`);
         return this.errorHandle(data);
     }
     static async sync(force = false) {
-        this.dbInstance.logger_function(`🔄 Starting  model synchronization...`);
-        this.dbInstance.logger_function(`🛠️ Synchronizing model: \`${this.dbTableIdentifier}\``);
+        config_js_1.GlobalConfig.logger_function(`🔄 Starting  model synchronization...`);
+        config_js_1.GlobalConfig.logger_function(`🛠️ Synchronizing model: \`${this.dbTableIdentifier}\``);
         await this.dropTableConstraints();
         if (force) {
-            this.dbInstance.logger_function("🚀 Force sync enabled. Dropping the table and re-creating it...");
+            config_js_1.GlobalConfig.logger_function("🚀 Force sync enabled. Dropping the table and re-creating it...");
             await this.drop();
-            this.dbInstance.logger_function("✅ Model table re-created successfully.");
+            config_js_1.GlobalConfig.logger_function("✅ Model table re-created successfully.");
             return this.errorHandle(await this.dbInstance.execute(this.ddlQuery));
         }
         const columnData = (await this.getColumnMetadata())?.reduce((acc, curr) => {
@@ -202,9 +190,9 @@ WHERE
         }, {});
         if (typeof columnData !== "object" ||
             Object.keys(columnData)?.length === 0) {
-            this.dbInstance.logger_function("⚠️ No existing table or metadata found. Re-creating the table...");
+            config_js_1.GlobalConfig.logger_function("⚠️ No existing table or metadata found. Re-creating the table...");
             await this.drop();
-            this.dbInstance.logger_function("✅ Model table created successfully.");
+            config_js_1.GlobalConfig.logger_function("✅ Model table created successfully.");
             return this.errorHandle(await this.dbInstance.execute(this.ddlQuery));
         }
         let query = `ALTER TABLE ${this.dbTableIdentifier}\n${this.getEngineOptions()}`;
@@ -231,7 +219,7 @@ WHERE
             }
         }
         const data = await this.dbInstance.execute(query);
-        this.dbInstance.logger_function("✅ Table synchronized successfully.");
+        config_js_1.GlobalConfig.logger_function("✅ Table synchronized successfully.");
         return this.errorHandle(data);
     }
     static errorHandle(data) {

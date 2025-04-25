@@ -15,7 +15,7 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.version = void 0;
-__exportStar(require("./utils"), exports);
-__exportStar(require("./core"), exports);
-__exportStar(require("./query"), exports);
-exports.version = "1.0.28";
+__exportStar(require("./utils/index.js"), exports);
+__exportStar(require("./core/index.js"), exports);
+__exportStar(require("./query/index.js"), exports);
+exports.version = "1.0.29";

@@ -1,4 +1,4 @@
-import { parseJoins, parseSort } from "./utils";
+import { parseJoins, parseSort } from "./utils.js";
 export function destroy(table, { where, joins, limit, sort }) {
     if (!table) {
         throw new Error("⚠️ The `table` parameter is required.");

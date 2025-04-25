@@ -51,7 +51,7 @@ const dbnx = new DBnx({
   user: 'root',
   password: 'password',
   database: 'your_database',
-});
+}).connect();
 ```
 
 ---

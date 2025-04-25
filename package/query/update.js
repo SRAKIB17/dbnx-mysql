@@ -1,5 +1,5 @@
-import { escape } from "../utils";
-import { parseJoins, parseSort } from "./utils";
+import { escape } from "../utils/index.js";
+import { parseJoins, parseSort } from "./utils.js";
 export function update(table, { joins = [], values, where = "", defaultValues = [], limit, sort, fromSubQuery, setCalculations, }) {
     if (!table) {
         throw new Error("⚠️ The `table` parameter is required.");

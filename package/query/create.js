@@ -1,4 +1,4 @@
-import { escape } from "../utils";
+import { escape } from "../utils/index.js";
 export function insert(table, values, { onDuplicateUpdateFields = [], uniqueColumn }) {
     if (!values) {
         throw new Error("❌ Insert data array is empty");

@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.find = find;
-const utils_1 = require("./utils");
+const utils_js_1 = require("./utils.js");
 let aggregates_alias = {
     MIN: "minimum",
     MAX: "maximum",
@@ -28,7 +28,7 @@ function find(table, config = {}) {
     }
     let select = "";
     if (columns) {
-        select = (0, utils_1.parseColumns)(columns);
+        select = (0, utils_js_1.parseColumns)(columns);
     }
     if (subQueries) {
         const subQueryStatement = subQueries
@@ -57,19 +57,19 @@ function find(table, config = {}) {
     }
     query += `${select ? select : "*"} FROM ${main_table}`;
     if (joins) {
-        query += (0, utils_1.parseJoins)(joins);
+        query += (0, utils_js_1.parseJoins)(joins);
     }
     if (where) {
         query += ` WHERE ${where}`;
     }
     if (groupBy) {
-        query += (0, utils_1.parseGroupBy)(groupBy) || "";
+        query += (0, utils_js_1.parseGroupBy)(groupBy) || "";
     }
     if (having) {
         query += ` HAVING ${having}`;
     }
     if (sort) {
-        query += (0, utils_1.parseSort)(sort);
+        query += (0, utils_js_1.parseSort)(sort);
     }
     if (limitSkip) {
         if (limitSkip.limit) {
