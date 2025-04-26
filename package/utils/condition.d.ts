@@ -2,121 +2,135 @@
  * Represents a single filter condition or a complex logical condition.
  * Used for building WHERE or HAVING clauses dynamically.
  */
-export type FilterValue = string | number | Array<string | number> | {
-    /**
-     * Exclude values matching the list (NOT IN).
-     * Example: { notIn: [1, 2, 3] }
-     */
-    notIn?: Array<string | number>;
-    /**
-     * Include only values in the list (IN).
-     * Example: { in: ['active', 'pending'] }
-     */
-    in?: Array<string | number>;
-    /**
-     * Inclusive range using BETWEEN.
-     * Example: { between: [100, 200] }
-     */
-    between?: [number, number];
-    /**
-     * Inclusive range using NOT BETWEEN.
-     * Example: { notBetween: [5, 10] }
-     */
-    notBetween?: [number, number];
-    /**
-     * A generic range condition (same as BETWEEN).
-     * Example: { inRange: [18, 65] }
-     */
-    inRange?: [number, number];
-    /**
-     * Logical OR within a single field's value.
-     * Example: { $or: [value1, { gt: 10 }] }
-     */
-    $or?: FilterValue[];
-    /**
-     * Pattern matching using SQL LIKE.
-     * Example: { like: '%john%' }
-     */
-    like?: string;
-    /**
-     * Pattern exclusion using SQL NOT LIKE.
-     * Example: { notLike: 'admin%' }
-     */
-    notLike?: string;
-    /**
-     * Check for NULL or NOT NULL values.
-     * true = IS NULL, false = IS NOT NULL.
-     * Example: { isNull: true }
-     */
-    isNull?: boolean;
-    /**
-     * Logical AND within a single field's value.
-     * Example: { $and: [{ gt: 10 }, { lt: 50 }] }
-     */
-    $and?: FilterValue[];
-    /**
-     * Regular expression match (SQL REGEXP or compatible).
-     * Example: { regexp: '^abc.*' }
-     */
-    regexp?: string;
-    /**
-     * Equality check (column = value).
-     * Example: { eq: 'active' }
-     */
-    eq?: number | string | unknown;
-    /**
-     * Greater than check (column > value).
-     * Example: { gt: 5 }
-     */
-    gt?: number | string | unknown;
-    /**
-     * Less than check (column < value).
-     * Example: { lt: 100 }
-     */
-    lt?: number | string | unknown;
-    /**
-     * Greater than or equal to (column >= value).
-     * Example: { gte: 18 }
-     */
-    gte?: number | string | unknown;
-    /**
-     * Less than or equal to (column <= value).
-     * Example: { lte: 99 }
-     */
-    lte?: number | string | unknown;
-    /**
-     * Not equal check (column != value).
-     * Example: { neq: 'inactive' }
-     */
-    neq?: number | string | unknown;
-};
+export type FilterValue =
+  | string
+  | number
+  | Array<string | number>
+  | {
+      /**
+       * Exclude values matching the list (NOT IN).
+       * Example: { notIn: [1, 2, 3] }
+       */
+      notIn?: Array<string | number>;
+      /**
+       * Include only values in the list (IN).
+       * Example: { in: ['active', 'pending'] }
+       */
+      in?: Array<string | number>;
+      /**
+       * Inclusive range using BETWEEN.
+       * Example: { between: [100, 200] }
+       */
+      between?: [number, number];
+      /**
+       * Inclusive range using NOT BETWEEN.
+       * Example: { notBetween: [5, 10] }
+       */
+      notBetween?: [number, number];
+      /**
+       * A generic range condition (same as BETWEEN).
+       * Example: { inRange: [18, 65] }
+       */
+      inRange?: [number, number];
+      /**
+       * Logical OR within a single field's value.
+       * Example: { $or: [value1, { gt: 10 }] }
+       */
+      $or?: FilterValue[];
+      /**
+       * Pattern matching using SQL LIKE.
+       * Example: { like: '%john%' }
+       */
+      like?: string;
+      /**
+       * Pattern exclusion using SQL NOT LIKE.
+       * Example: { notLike: 'admin%' }
+       */
+      notLike?: string;
+      /**
+       * Check for NULL or NOT NULL values.
+       * true = IS NULL, false = IS NOT NULL.
+       * Example: { isNull: true }
+       */
+      isNull?: boolean;
+      /**
+       * Logical AND within a single field's value.
+       * Example: { $and: [{ gt: 10 }, { lt: 50 }] }
+       */
+      $and?: FilterValue[];
+      /**
+       * Regular expression match (SQL REGEXP or compatible).
+       * Example: { regexp: '^abc.*' }
+       */
+      regexp?: string;
+      /**
+       * Equality check (column = value).
+       * Example: { eq: 'active' }
+       */
+      eq?: number | string | unknown;
+      /**
+       * Greater than check (column > value).
+       * Example: { gt: 5 }
+       */
+      gt?: number | string | unknown;
+      /**
+       * Less than check (column < value).
+       * Example: { lt: 100 }
+       */
+      lt?: number | string | unknown;
+      /**
+       * Greater than or equal to (column >= value).
+       * Example: { gte: 18 }
+       */
+      gte?: number | string | unknown;
+      /**
+       * Less than or equal to (column <= value).
+       * Example: { lte: 99 }
+       */
+      lte?: number | string | unknown;
+      /**
+       * Not equal check (column != value).
+       * Example: { neq: 'inactive' }
+       */
+      neq?: number | string | unknown;
+    };
 /**
  * A structure that represents filtering logic for WHERE/HAVING clauses.
  */
-export type Filters = 
-/**
- * Basic filters: keys are column names, and values are filter conditions.
- * Example: { status: 'active', age: { gt: 18 } }
- */
-{
-    [column: string]: FilterValue;
-}
-/**
- * Logical grouping using $or or $and at the top level.
- * Useful for complex query logic.
- * Example:
- * {
- *   $or: {
- *     status: 'pending',
- *     age: { lt: 18 }
- *   }
- * }
- */
- | {
-    $or?: Record<string, FilterValue>;
-    $and?: Record<string, FilterValue>;
-};
-export type OperatorType = "=" | "!=" | "<>" | "<" | ">" | "<=" | ">=" | "LIKE" | "IN" | "BETWEEN";
+export type Filters =
+  /**
+   * Basic filters: keys are column names, and values are filter conditions.
+   * Example: { status: 'active', age: { gt: 18 } }
+   */
+  | {
+      [column: string]: FilterValue;
+    }
+  /**
+   * Logical grouping using $or or $and at the top level.
+   * Useful for complex query logic.
+   * Example:
+   * {
+   *   $or: {
+   *     status: 'pending',
+   *     age: { lt: 18 }
+   *   }
+   * }
+   */
+  | {
+      $or?: Record<string, FilterValue>;
+      $and?: Record<string, FilterValue>;
+    };
+export type OperatorType =
+  | "="
+  | "!="
+  | "<>"
+  | "<"
+  | ">"
+  | "<="
+  | ">="
+  | "LIKE"
+  | "IN"
+  | "BETWEEN";
 /**
  * Generates SQL conditions based on the filters object.
  * It dynamically builds the WHERE clause for SQL based on the provided filters and logical operations.
@@ -168,4 +182,7 @@ SELECT * FROM products WHERE
 
 ```
  */
-export declare function dbnxCondition(filters: Filters, joinBy?: "AND" | "OR"): string;
+export declare function dbnxCondition(
+  filters: Filters,
+  joinBy?: "AND" | "OR",
+): string;

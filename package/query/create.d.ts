@@ -2,27 +2,30 @@
  * Options for creating insert queries.
  */
 export type CreateOptionsType = {
-    /**
-     * Column name to use with `INSERT IGNORE`, typically a unique column.
-     * If provided, it prevents duplicate row insertions.
-     */
-    uniqueColumn?: string | null;
-    /**
-     * List of column names to update if a duplicate key is found.
-     * Used with `ON DUPLICATE KEY UPDATE`.
-     */
-    onDuplicateUpdateFields?: string[];
+  /**
+   * Column name to use with `INSERT IGNORE`, typically a unique column.
+   * If provided, it prevents duplicate row insertions.
+   */
+  uniqueColumn?: string | null;
+  /**
+   * List of column names to update if a duplicate key is found.
+   * Used with `ON DUPLICATE KEY UPDATE`.
+   */
+  onDuplicateUpdateFields?: string[];
 };
 /**
  * Accepts a record or an array of records representing rows to insert.
  * - Each value must be string | number | 'CURRENT_TIMESTAMP' | undefined
  * - Columns must extend from a string[] array of allowed column names
  */
-export type CreateParamsType<columns extends any[]> = {
-    [P in columns[number]]?: string | "CURRENT_TIMESTAMP" | undefined;
-} | Record<string, string | number | "CURRENT_TIMESTAMP" | undefined> | {
-    [P in columns[number]]?: string | "CURRENT_TIMESTAMP";
-}[];
+export type CreateParamsType<columns extends any[]> =
+  | {
+      [P in columns[number]]?: string | "CURRENT_TIMESTAMP" | undefined;
+    }
+  | Record<string, string | number | "CURRENT_TIMESTAMP" | undefined>
+  | {
+      [P in columns[number]]?: string | "CURRENT_TIMESTAMP";
+    }[];
 /**
  * Generates a raw SQL insert query string from a table name and values.
  *
@@ -35,4 +38,8 @@ export type CreateParamsType<columns extends any[]> = {
  *
  * @throws Error if values is null or undefined.
  */
-export declare function insert<columns extends string[]>(table: string, values: CreateParamsType<columns>, { onDuplicateUpdateFields, uniqueColumn }: CreateOptionsType): string;
+export declare function insert<columns extends string[]>(
+  table: string,
+  values: CreateParamsType<columns>,
+  { onDuplicateUpdateFields, uniqueColumn }: CreateOptionsType,
+): string;

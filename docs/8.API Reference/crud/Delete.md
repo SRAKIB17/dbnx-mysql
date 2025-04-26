@@ -1,4 +1,3 @@
-
 # `@dbnx/mysql` delete Method API Reference
 
 The `delete` method in `@dbnx/mysql` enables the deletion of records from a MySQL database table or model based on specified conditions. It supports both table-based and model-based queries, with options for filtering, sorting, limiting, and joining tables.
@@ -23,11 +22,11 @@ public delete(...args: any): MySQLHandler | Promise<ResponseType>;
 
 ## 3. Parameters
 
-| Parameter | Type                     | Description                                                                 | Required |
-|-----------|--------------------------|-----------------------------------------------------------------------------|----------|
-| `table`   | `string`                 | Name of the table to delete from (e.g., `'users'`).                         | Yes (if not using model) |
-| `model`   | `typeof Model`           | Model class for ORM-based deletion (e.g., `User`).                          | Yes (if not using table) |
-| `props`   | `DeleteParamsType`       | Configuration object specifying deletion conditions and options.            | Yes      |
+| Parameter | Type               | Description                                                      | Required                 |
+| --------- | ------------------ | ---------------------------------------------------------------- | ------------------------ |
+| `table`   | `string`           | Name of the table to delete from (e.g., `'users'`).              | Yes (if not using model) |
+| `model`   | `typeof Model`     | Model class for ORM-based deletion (e.g., `User`).               | Yes (if not using table) |
+| `props`   | `DeleteParamsType` | Configuration object specifying deletion conditions and options. | Yes                      |
 
 ---
 
@@ -44,21 +43,21 @@ The `DeleteParamsType` interface defines the configuration for the delete operat
 
 ```typescript
 export interface DeleteParamsType<Tables extends string[]> {
-  where: string;                    // Condition for selecting rows to delete
-  sort?: SortType<Tables>;          // Optional sorting criteria
-  limit?: string | number;          // Optional limit on number of deleted rows
-  joins?: JoinsType<Tables>;        // Optional JOIN clauses for multi-table deletion
+  where: string; // Condition for selecting rows to delete
+  sort?: SortType<Tables>; // Optional sorting criteria
+  limit?: string | number; // Optional limit on number of deleted rows
+  joins?: JoinsType<Tables>; // Optional JOIN clauses for multi-table deletion
 }
 ```
 
 ### Parameters
 
-| Parameter | Type                     | Description                                                                 |
-|-----------|--------------------------|-----------------------------------------------------------------------------|
-| `where`   | `string`                 | Condition for selecting records (e.g., `'age > 30'`).                       |
-| `sort`    | `SortType<Tables>`       | Sorting criteria (e.g., `{ name: 'ASC' }`).                                 |
-| `limit`   | `string \| number`        | Maximum number of records to delete (e.g., `10`).                           |
-| `joins`   | `JoinsType<Tables>`      | Join conditions for multi-table deletions (e.g., `{ table: 'orders', on: 'users.id = orders.user_id' }`). |
+| Parameter | Type                | Description                                                                                               |
+| --------- | ------------------- | --------------------------------------------------------------------------------------------------------- |
+| `where`   | `string`            | Condition for selecting records (e.g., `'age > 30'`).                                                     |
+| `sort`    | `SortType<Tables>`  | Sorting criteria (e.g., `{ name: 'ASC' }`).                                                               |
+| `limit`   | `string \| number`  | Maximum number of records to delete (e.g., `10`).                                                         |
+| `joins`   | `JoinsType<Tables>` | Join conditions for multi-table deletions (e.g., `{ table: 'orders', on: 'users.id = orders.user_id' }`). |
 
 ---
 
@@ -69,12 +68,14 @@ export interface DeleteParamsType<Tables extends string[]> {
 Construct a delete query with sorting, limit, and joins.
 
 ```typescript
-const query = db.delete('users', {
-  where: 'age > 30',
-  sort: { name: 'ASC' },
-  limit: 10,
-  joins: { type: 'INNER', table: 'orders', on: 'users.id = orders.user_id' },
-}).build();
+const query = db
+  .delete("users", {
+    where: "age > 30",
+    sort: { name: "ASC" },
+    limit: 10,
+    joins: { type: "INNER", table: "orders", on: "users.id = orders.user_id" },
+  })
+  .build();
 console.log(query);
 // SQL: DELETE FROM users INNER JOIN orders ON users.id = orders.user_id WHERE age > 30 ORDER BY name ASC LIMIT 10;
 ```
@@ -82,11 +83,13 @@ console.log(query);
 Execute the query:
 
 ```typescript
-const result = await db.delete('users', {
-  where: 'age > 30',
-  sort: { name: 'ASC' },
-  limit: 10,
-}).execute();
+const result = await db
+  .delete("users", {
+    where: "age > 30",
+    sort: { name: "ASC" },
+    limit: 10,
+  })
+  .execute();
 console.log(result); // Logs execution result
 ```
 
@@ -96,8 +99,8 @@ Delete records directly using a model.
 
 ```typescript
 const result = await User.delete({
-  where: 'age > 30',
-  sort: { name: 'ASC' },
+  where: "age > 30",
+  sort: { name: "ASC" },
   limit: 10,
 });
 console.log(result); // Logs result of delete operation
@@ -107,11 +110,11 @@ console.log(result); // Logs result of delete operation
 
 ## 7. Errors
 
-| Error Message                                      | Cause                                              | Solution                                                                 |
-|----------------------------------------------------|----------------------------------------------------|--------------------------------------------------------------------------|
-| `No arguments provided to 'delete'.`               | Missing table name or model.                       | Provide a valid table name or model as the first argument.               |
-| `Invalid first argument: must be a table name or a Model class.` | First argument is neither a string nor a model.    | Ensure the first argument is a valid table name or model class.          |
-| `Props must be a non-empty object.`                | Invalid or empty `props` object.                   | Provide a valid `DeleteParamsType` object with at least a `where` clause.|
+| Error Message                                                    | Cause                                           | Solution                                                                  |
+| ---------------------------------------------------------------- | ----------------------------------------------- | ------------------------------------------------------------------------- |
+| `No arguments provided to 'delete'.`                             | Missing table name or model.                    | Provide a valid table name or model as the first argument.                |
+| `Invalid first argument: must be a table name or a Model class.` | First argument is neither a string nor a model. | Ensure the first argument is a valid table name or model class.           |
+| `Props must be a non-empty object.`                              | Invalid or empty `props` object.                | Provide a valid `DeleteParamsType` object with at least a `where` clause. |
 
 ---
 

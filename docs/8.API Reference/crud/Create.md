@@ -18,14 +18,14 @@ The `DBnx` instance is initialized to establish a connection to the MySQL databa
 
 ```javascript
 // database.js
-import { DBnx } from '@dbnx/mysql';
+import { DBnx } from "@dbnx/mysql";
 
 // Initialize DBnx instance
 export const db = new DBnx({
-  host: 'localhost',
-  user: 'root',
-  password: '11224455',
-  database: 'world',
+  host: "localhost",
+  user: "root",
+  password: "11224455",
+  database: "world",
   waitForConnections: true,
   multipleStatements: true,
   connectionLimit: 10,
@@ -35,16 +35,16 @@ export const db = new DBnx({
 
 ### Parameters
 
-| Parameter              | Type      | Description                                                                 |
-|------------------------|-----------|-----------------------------------------------------------------------------|
-| `host`                 | `string`  | MySQL server hostname or IP address.                                        |
-| `user`                 | `string`  | MySQL username.                                                             |
-| `password`             | `string`  | MySQL password.                                                             |
-| `database`             | `string`  | Database name.                                                              |
-| `waitForConnections`   | `boolean` | Wait for connections when the pool is full.                                 |
-| `multipleStatements`   | `boolean` | Allow multiple SQL statements in a single query.                            |
-| `connectionLimit`      | `number`  | Maximum number of connections in the pool.                                  |
-| `queueLimit`           | `number`  | Maximum number of queued connection requests (0 = no limit).                |
+| Parameter            | Type      | Description                                                  |
+| -------------------- | --------- | ------------------------------------------------------------ |
+| `host`               | `string`  | MySQL server hostname or IP address.                         |
+| `user`               | `string`  | MySQL username.                                              |
+| `password`           | `string`  | MySQL password.                                              |
+| `database`           | `string`  | Database name.                                               |
+| `waitForConnections` | `boolean` | Wait for connections when the pool is full.                  |
+| `multipleStatements` | `boolean` | Allow multiple SQL statements in a single query.             |
+| `connectionLimit`    | `number`  | Maximum number of connections in the pool.                   |
+| `queueLimit`         | `number`  | Maximum number of queued connection requests (0 = no limit). |
 
 ---
 
@@ -56,30 +56,30 @@ The `executeMultiple()` method executes a sequence of chained queries, such as u
 
 ```javascript
 // executeQueries.js
-import { db } from './database.js';
+import { db } from "./database.js";
 
 async function executeMultipleQueries() {
   try {
     const result = await db
-      .update('product', {
-        values: { title: 'SRAKIB brand' },
-        where: 'product_id = 1',
+      .update("product", {
+        values: { title: "SRAKIB brand" },
+        where: "product_id = 1",
       })
-      .findAll('product')
-      .create('product', {
-        title: 'test',
+      .findAll("product")
+      .create("product", {
+        title: "test",
       })
-      .findOne('product', {
-        where: 'product_id = 1',
+      .findOne("product", {
+        where: "product_id = 1",
       })
-      .delete('product', {
-        where: 'product_id = 2',
+      .delete("product", {
+        where: "product_id = 2",
       })
       .executeMultiple();
 
-    console.log('Multiple queries executed successfully:', result);
+    console.log("Multiple queries executed successfully:", result);
   } catch (error) {
-    console.error('Error executing multiple queries:', error);
+    console.error("Error executing multiple queries:", error);
   } finally {
     await db.close(); // Close the database connection
   }
@@ -156,15 +156,18 @@ Wrap the query chain in a `try...catch` block to handle errors gracefully.
 ```javascript
 try {
   const result = await db
-    .update('product', { values: { title: 'SRAKIB brand' }, where: 'product_id = 1' })
-    .findAll('product')
-    .create('product', { title: 'test' })
-    .findOne('product', { where: 'product_id = 1' })
-    .delete('product', { where: 'product_id = 2' })
+    .update("product", {
+      values: { title: "SRAKIB brand" },
+      where: "product_id = 1",
+    })
+    .findAll("product")
+    .create("product", { title: "test" })
+    .findOne("product", { where: "product_id = 1" })
+    .delete("product", { where: "product_id = 2" })
     .executeMultiple();
-  console.log('Results:', result);
+  console.log("Results:", result);
 } catch (error) {
-  console.error('Error executing query chain:', error);
+  console.error("Error executing query chain:", error);
 }
 ```
 
@@ -199,15 +202,19 @@ Multiple queries executed successfully: [
 ## 8. Best Practices
 
 1. **Use Transactions for Consistency**:
+
    - Ensure all queries in the chain are executed within a transaction to maintain data integrity.
 
 2. **Validate Input Data**:
+
    - Sanitize and validate input data (e.g., `values`, `where` conditions) to prevent SQL injection.
 
 3. **Preview Queries**:
+
    - Use `.build()` to inspect generated SQL queries before execution, especially for complex chains.
 
 4. **Handle Errors Gracefully**:
+
    - Implement robust error handling to capture and log issues without crashing the application.
 
 5. **Close Connections**:

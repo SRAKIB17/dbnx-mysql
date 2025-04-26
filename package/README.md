@@ -1,4 +1,3 @@
-
 ---
 
 # **DBnx/mysql**
@@ -44,13 +43,13 @@ npm install @dbnx/mysql
 Start by initializing the `DBnx` instance:
 
 ```typescript
-import {DBnx} from '@dbnx/mysql';
+import { DBnx } from "@dbnx/mysql";
 
 const dbnx = new DBnx({
-  host: 'localhost',
-  user: 'root',
-  password: 'password',
-  database: 'your_database',
+  host: "localhost",
+  user: "root",
+  password: "password",
+  database: "your_database",
 }).connect();
 ```
 
@@ -64,12 +63,12 @@ const dbnx = new DBnx({
 new DBnx(config: DBConfigType)
 ```
 
-| Parameter      | Type     | Description                            |
-|----------------|----------|----------------------------------------|
-| `host`         | `string` | Database host URL                     |
-| `user`         | `string` | Database user                         |
-| `password`     | `string` | Database password                     |
-| `database`     | `string` | Name of the database                  |
+| Parameter  | Type     | Description          |
+| ---------- | -------- | -------------------- |
+| `host`     | `string` | Database host URL    |
+| `user`     | `string` | Database user        |
+| `password` | `string` | Database password    |
+| `database` | `string` | Name of the database |
 
 ---
 
