@@ -18,11 +18,11 @@ export declare function escape(val: any): string;
  */
 export declare function format(query: string, values: any[]): string;
 export interface MySQLConfig {
-  host: string;
-  user: string;
-  password: string;
-  database: string;
-  port: number;
-  params: Record<string, any>;
+    host: string;
+    user: string;
+    password: string;
+    database: string;
+    port: number;
+    params: Record<string, any>;
 }
 export declare function parseMySQLUrl(url: string): MySQLConfig;

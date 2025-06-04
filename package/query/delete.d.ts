@@ -6,25 +6,25 @@ import { JoinsType } from "./utils.js";
  * @template Tables A tuple of table names for JOINs or sorting.
  */
 export interface DeleteParamsType<Tables extends string[]> {
-  /**
-   * WHERE clause string (required).
-   * Example: `"users.id = 5"`
-   */
-  where: string;
-  /**
-   * Optional sorting applied to the deletion.
-   * Example: `{ column: "created_at", order: "DESC" }`
-   */
-  sort?: SortType<Tables>;
-  /**
-   * Optional LIMIT clause to restrict deletion.
-   * Example: `10`
-   */
-  limit?: string | number;
-  /**
-   * Optional JOINs to delete from related tables.
-   */
-  joins?: JoinsType<Tables>;
+    /**
+     * WHERE clause string (required).
+     * Example: `"users.id = 5"`
+     */
+    where: string;
+    /**
+     * Optional sorting applied to the deletion.
+     * Example: `{ column: "created_at", order: "DESC" }`
+     */
+    sort?: SortType<Tables>;
+    /**
+     * Optional LIMIT clause to restrict deletion.
+     * Example: `10`
+     */
+    limit?: string | number;
+    /**
+     * Optional JOINs to delete from related tables.
+     */
+    joins?: JoinsType<Tables>;
 }
 /**
  * Generates a raw SQL DELETE query with optional JOINs, WHERE clause, sorting, and limit.
@@ -36,7 +36,4 @@ export interface DeleteParamsType<Tables extends string[]> {
  *
  * @throws Error if `table` or `where` clause is missing.
  */
-export declare function destroy<Tables extends string[]>(
-  table: string,
-  { where, joins, limit, sort }: DeleteParamsType<Tables>,
-): string;
+export declare function destroy<Tables extends string[]>(table: string, { where, joins, limit, sort }: DeleteParamsType<Tables>): string;
