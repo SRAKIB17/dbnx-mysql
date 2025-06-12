@@ -50,8 +50,8 @@ function parseGroupBy(groupBy) {
             if (groupBy.hasOwnProperty(table)) {
                 const val = groupBy[table];
                 if (table === "extra") {
-                    group +=
-                        (group ? ", " : "") + (Array.isArray(val) ? val.join(", ") : val);
+                    let gr = Array.isArray(val) ? val.join(", ") : val;
+                    group += (group && gr ? ", " : "") + gr;
                 }
                 else if (Array.isArray(val)) {
                     group +=
@@ -121,9 +121,9 @@ function parseColumns(columns) {
             if (columns.hasOwnProperty(table)) {
                 const col = columns[table];
                 if (table === "extra") {
+                    let ex = Array.isArray(col) ? col.join(", ") : col;
                     selectColumn +=
-                        (selectColumn ? ", " : "") +
-                            (Array.isArray(col) ? col.join(", ") : col);
+                        (selectColumn && ex ? ", " : "") + ex;
                 }
                 else if (Array.isArray(col)) {
                     selectColumn +=
