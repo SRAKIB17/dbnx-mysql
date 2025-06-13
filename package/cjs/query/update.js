@@ -52,7 +52,7 @@ function update(table, { joins = [], values, where = "", defaultValues = [], lim
         }
     }
     const joinStatements = (0, utils_js_1.parseJoins)(joins);
-    let query = `UPDATE${joinStatements} ${table} SET ${updateInfo}`;
+    let query = `UPDATE ${table}${joinStatements} SET ${updateInfo}`;
     if (where) {
         query += ` WHERE ${where}`;
     }

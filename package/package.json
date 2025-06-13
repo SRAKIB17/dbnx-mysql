@@ -1,6 +1,6 @@
 {
   "name": "@dbnx/mysql",
-  "version": "1.0.32",
+  "version": "1.0.33",
   "description": "A powerful and enhanced ORM library for MySQL, offering query execution, model creation, and full relational management.",
   "main": "cjs/index.js",
   "module": "index.js",

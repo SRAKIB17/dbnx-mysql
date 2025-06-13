@@ -49,7 +49,7 @@ export function update(table, { joins = [], values, where = "", defaultValues = 
         }
     }
     const joinStatements = parseJoins(joins);
-    let query = `UPDATE${joinStatements} ${table} SET ${updateInfo}`;
+    let query = `UPDATE ${table}${joinStatements} SET ${updateInfo}`;
     if (where) {
         query += ` WHERE ${where}`;
     }
