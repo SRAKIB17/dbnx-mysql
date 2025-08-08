@@ -1,4 +1,4 @@
-import { CreateOptionsType, CreateParamsType, DeleteParamsType, FindAllParamsType, FindOneParamsType, UpdateParamsType } from "../query";
+import { CreateOptionsType, CreateParamsType, DeleteParamsType, FindAllParamsType, FindOneParamsType, UpdateParamsType } from "../query/index.js";
 import { ResponseType } from "../types/index.js";
 import { DBnxHandler } from "./handler.js";
 import { Attributes, ModelDefine, TableOptions } from "./model-define.js";
@@ -65,4 +65,4 @@ export declare class Model extends ModelDefine {
     static sync(force?: boolean): Promise<ResponseType>;
     private static errorHandle;
 }
-export {};
+export { };

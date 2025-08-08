@@ -1,5 +1,5 @@
-const fs = require("fs");
-const path = require("path");
+import fs from "fs";
+import * as path from "path";
 
 function formatTitle(name) {
   return (
@@ -35,13 +35,31 @@ function normalizePath(path) {
     ?.replace(/\/+$/, "");
 }
 
-function getMarkdownFiles(dir, baseDir = dir) {
+import matter from 'gray-matter';
+import { remark } from 'remark';
+import html from 'remark-html';
+
+export async function getMarkdownContent(fileContent) {
+  // const filePath = path.join(process.cwd(), 'content', `${slug}.md`);
+  // const fileContent = fs.readFileSync(filePath, 'utf8');
+
+  const { data, content } = matter(fileContent);
+  const processedContent = await remark().use(html).process(content);
+  const htmlContent = processedContent.toString();
+
+  return {
+    metadata: data,
+    content: htmlContent,
+  };
+}
+
+async function getMarkdownFiles(dir, baseDir = dir) {
   let results = [];
 
-  function traverse(currentDir, structure) {
+  async function traverse(currentDir, structure) {
     let files = fs.readdirSync(currentDir);
 
-    files.forEach((file) => {
+    files.forEach(async (file) => {
       let fullPath = path.join(currentDir, file);
       let relativePath = path.relative(baseDir, fullPath);
       let stats = fs.statSync(fullPath);
@@ -58,7 +76,7 @@ function getMarkdownFiles(dir, baseDir = dir) {
         traverse(fullPath, folderStructure.children);
         structure.push(folderStructure);
       } else if (file.endsWith(".md")) {
-        let content = fs.readFileSync(fullPath, "utf-8");
+        let content = (await getMarkdownContent(fs.readFileSync(fullPath, "utf-8")))?.content;
         structure.push({
           originalPath: file,
           id: results.length + 1,
@@ -88,12 +106,14 @@ function getMarkdownFiles(dir, baseDir = dir) {
   }
 
   let finalStructure = [];
-  traverse(dir, finalStructure);
+  await traverse(dir, finalStructure);
 
   return { structure: finalStructure, files: results };
 }
 
-const markdownData = getMarkdownFiles("./docs");
-fs.writeFileSync("./src/app/docs.json", JSON.stringify(markdownData, null, 2));
+(async () => {
+  const markdownData = await getMarkdownFiles("./docs");
+  fs.writeFileSync("./src/app/docs.json", JSON.stringify(markdownData, null, 2));
+})()
 
 console.log("Markdown data saved in output.json");

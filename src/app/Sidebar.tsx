@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, usePathname } from "next/navigation";
 import { IoIosArrowForward } from "react-icons/io";
 
 type Props = {
@@ -8,16 +8,25 @@ type Props = {
 };
 
 export default function Sidebar({ content }: Props) {
-  const router = useRouter();
   const params = useParams();
-
+  const pathname = usePathname();
   return (
     <div className="relative ">
       {content?.map((r: any, index: number) => {
         let path = Array.isArray(params?.path)
           ? params?.path.join("/")
           : params?.path;
-        const check = (path || "").replace(/^\/+|\/+$/g, "").includes(r?.path);
+
+        function Check(children: any[]): boolean {
+          return children?.some((r: { path: string, children: any[] }) => {
+            if (pathname == `/${r?.path}`) {
+              return true;
+            }
+            return Check(r?.children);
+          })
+        }
+        const check = Check(r?.children);
+
         if (r.type == "folder" && r.children?.length) {
           return (
             <div className="w-full" key={r.id}>
@@ -32,7 +41,7 @@ export default function Sidebar({ content }: Props) {
                 onClick={() => {
                   // router.push(`/${r.path}`)
                 }}
-                className="cursor-pointer font-bold w-full btn-ghost flex justify-between items-center px-2.5 py-2 rounded"
+                className={`cursor-pointer font-bold w-full hover:text-primary transition-all flex justify-between items-center px-2.5 py-2`}
               >
                 <span>{r.name}</span>
                 <span>
@@ -40,18 +49,19 @@ export default function Sidebar({ content }: Props) {
                 </span>
               </label>
               <div className="pl-1 submenu-content">
-                <div className="pl-1 w-full border-l-2 rounded-bl-xl">
+                <div className="pl-1 w-full border-l">
                   {r.children && <Sidebar content={r.children} />}
                 </div>
               </div>
             </div>
           );
-        } else {
+        }
+        else {
           return (
             <Link
               key={r?.id}
               href={`/${r?.path}` || ""}
-              className={`${check ? "text-primary" : "btn-ghost"} w-full flex items-center px-2.5 py-2 rounded`}
+              className={`${pathname == `/${r?.path}` ? "text-primary" : "hover:text-primary "} w-full flex items-center px-2.5 py-2 rounded transition-all`}
             >
               {r?.name}
             </Link>

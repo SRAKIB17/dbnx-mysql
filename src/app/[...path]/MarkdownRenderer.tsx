@@ -2,7 +2,7 @@
 "use client";
 import ClipboardJS from "clipboard";
 import hljs from "highlight.js";
-// import "highlight.js/styles/night-owl.css"; // Syntax highlighting theme
+// import "highlight.js/styles/docco.css"; // Syntax highlighting theme
 import "highlight.js/styles/github-dark.css"; // Syntax highlighting theme
 
 // import "highlight.js/styles/atom-one-light.css"; // Syntax highlighting theme
@@ -53,12 +53,32 @@ export default function MarkdownRenderer({ markdown }: { markdown: string }) {
     };
   }, []);
 
+  // const updatedHtmlContent = (htmlContent as any)?.replace(
+  //   /<pre><code class="([^"]*)">([\s\S]*?)<\/code><\/pre>/g,
+  //   (match: any, classNames: any, codeContent: any) => {
+  //     return `
+  //       <div class="relative">
+  //         <button
+  //           class="absolute right-2 rounded top-2 btn btn-xs btn-outline copy-btn btn-primary"
+  //           data-clipboard-text="${codeContent.trim()}"
+  //         >
+  //           <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 24 24" height="18px" width="18px" xmlns="http://www.w3.org/2000/svg">
+  //           <path fill="none" d="M0 0h24v24H0z">
+  //           </path>
+  //           <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"></path>
+  //           </svg>
+  //         </button>
+  //         <pre><code class="border rounded-lg ${classNames}">${codeContent}</code></pre>
+  //       </div>
+  //     `;
+  //   },
+  // );
   const updatedHtmlContent = (htmlContent as any)?.replace(
     /<pre><code class="([^"]*)">([\s\S]*?)<\/code><\/pre>/g,
     (match: any, classNames: any, codeContent: any) => {
       return `
         <div class="relative">
-          <button 
+          <button
             class="absolute right-2 rounded top-2 btn btn-xs btn-outline text-[white!important] copy-btn btn-primary"
             data-clipboard-text="${codeContent.trim()}"
           >
@@ -73,6 +93,7 @@ export default function MarkdownRenderer({ markdown }: { markdown: string }) {
       `;
     },
   );
+
   // const updatedHtmlContent = (htmlContent as any)?.replace(
   //     /<pre><code class="([^"]*)">([\s\S]*?)<\/code><\/pre>/g,
   //     (match: any, classNames: any, codeContent: any) => {
@@ -96,7 +117,7 @@ export default function MarkdownRenderer({ markdown }: { markdown: string }) {
 
   return (
     <div
-      className="prose lg:prose-lg max-w-full"
+      className="prose xl:prose-lg max-w-full"
       dangerouslySetInnerHTML={{
         __html: updatedHtmlContent,
       }}
